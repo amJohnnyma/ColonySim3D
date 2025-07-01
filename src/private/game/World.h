@@ -54,10 +54,7 @@ class World
         Chunk *getChunkAt(int globalx, int globaly);
         void update();
         void render(sf::RenderWindow & window);
-        //temp input
-
-
-
+        void updateInputs(float rotationX, float rotationY, float zoom, sf::RenderWindow &window);
 };
 
 

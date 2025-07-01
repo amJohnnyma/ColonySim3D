@@ -75,6 +75,8 @@ void Game::runningState()
     {
         if (event.type == sf::Event::Closed)
             wind->wndw->close();
+        
+        inputManager->processEvent(event,*wind->wndw);
     }
 
 
@@ -84,7 +86,7 @@ void Game::runningState()
         world->update();
         lastUpdate = now;
     }
-
+    inputManager->update(*wind->wndw);
     renderFrame();
     
 }
@@ -147,6 +149,8 @@ Game::Game(int windowWidth, int windowHeight, int worldWidth, int worldHeight)
     handleEvent(Event::START);   
     std::cout << "world init" << std::endl;
     world->Init(); 
+    std::cout << "Input manager init" << std::endl;
+    inputManager = new InputManager(world,*wind->wndw);
     std::cout << "Game init fin" << std::endl;
 }
 

@@ -5,6 +5,7 @@
 #include "../structs/gfx.h"
 #include "GlobalVars.h"
 #include "../structs/enums.h"
+#include "../controller/InputManager.h"
 
 #include <thread>
 #include <chrono>
@@ -18,6 +19,7 @@ class Game
         World* world;
         window* wind;        
         State currentState = State::PAUSED;
+        InputManager* inputManager;
 
     private:
         Game(int windowWidth, int windowHeight, int worldWidth, int worldHeight);

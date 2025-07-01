@@ -1,6 +1,7 @@
 #include "World.h"
 #include "GlobalVars.h"
 #include <SFML/OpenGL.hpp>
+#include "../utils/math.h"
 
 World::World(sf::RenderWindow &window)
 {
@@ -303,8 +304,7 @@ Chunk *World::getChunkAt(int x, int y)
 void World::update()
 {
     // createACO(); //
-    rotationX += 0.0005f;
-    rotationY += 0.005f;
+
 }
 void World::render(sf::RenderWindow &window)
 {
@@ -321,11 +321,20 @@ void World::render(sf::RenderWindow &window)
     window.display();
 }
 
+void World::updateInputs(float rotationX, float rotationY, float zoom, sf::RenderWindow & window)
+{
+    this->zoom = zoom;
+    this->rotationX = rotationX;
+    this->rotationY = rotationY;
+}
+
 // helper render
 void World::drawTerrain(sf::RenderWindow &window)
 {
+
     terrainShader.setUniform("rotX", rotationX);
     terrainShader.setUniform("rotY", rotationY);
+
     terrainShader.setUniform("zoom", zoom);
 
     if (vertices.getVertexCount() == 0)
