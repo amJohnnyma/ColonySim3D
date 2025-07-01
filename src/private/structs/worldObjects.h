@@ -5,7 +5,6 @@
 #include <vector>
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "../shapes/Shape.h"
 #include "biomDef.h"
 #include "unordered_map"
 

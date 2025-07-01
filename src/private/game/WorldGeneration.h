@@ -7,11 +7,6 @@
 
 #include "../structs/worldObjects.h"
 #include "../game/Cell.h"
-#include "../shapes/Shape.h"
-#include "../shapes/Triangle.h"
-#include "../shapes/Circle.h"
-#include "../shapes/RoundedRectangle.h"
-#include "../shapes/Rectangle.h"
 #include "PerlinNoise.h"
 
 class Chunk;
@@ -38,7 +33,6 @@ class WorldGeneration
     private:
         pheromone createPheromones(int x, int y);
         double generateDifficulty();
-        std::unique_ptr<Rectangle> createCellShape(int x, int y, float size);
         std::pair<std::unique_ptr<Cell>, sf::Color> createCell(int x, int y, int face, float noise);
         void generateTerrain(World *world);
         std::unique_ptr<sf::Sprite> createAntShape(sf::Color fillColor, int x, int y, float cellSize);

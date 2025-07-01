@@ -17,65 +17,41 @@ void World::Init()
         std::cerr << "Failed to load shaders\n";
     }
 
-    terrainShader.setUniform("radius", radius);
-    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + 10, conf::window_size.y / 2 + 10));
+    terrainShader.setUniform("radius", conf::worldRadius);
+    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2, conf::window_size.y / 2));
     terrainShader.setUniform("zoom", 1.f);
+    terrainShader.setUniform("distance", 256.f);
+    terrainShader.setUniform("screenSize", conf::window_size);
+    terrainShader.setUniform("faceSize", 200.f);
 
     std::cout << "Creating vertices" << std::endl;
     vertices = sf::VertexArray(sf::Quads, totalVertices);
     if (!chunkManager)
     {
         chunkManager = std::make_unique<ChunkManager>(this);
-        // chunkManager.get()->ensureChunksAround(0,0,0);
         chunkManager.get()->createTempTerrain(vertices, conf::worldSize); // world size is actually * 6
     }
-    std::cout << "world init fin" << std::endl;
 
-    ////////////////// put some markers down to test coords
-    sf::Color faceColors[6] = {
-        sf::Color::Red,    // face 0
-        sf::Color::Green,  // face 1
-        sf::Color::Blue,   // face 2
-        sf::Color::Yellow, // face 3
-        sf::Color::Cyan,   // face 4
-        sf::Color::Magenta // face 5
-    };
-
-    for(int face = 0; face < 6; face++)
-    {
-        for(int i = 0; i < conf::worldSize; i ++)
-        {
-            for(int j = 0; j < conf::worldSize; j ++)
-            {
-                int quadIndex = (face * conf::worldSize * conf::worldSize + j * conf::worldSize + i) * 4;
-                //  std::cout << "Index: " << quadIndex << std::endl;
-                if (quadIndex + 3 < vertices.getVertexCount())
-                {
-                    for (int k = 0; k < 4; ++k)
-                    {
-                        vertices[quadIndex + k].color = faceColors[face];
-                    }
-                }
-            }
-        }
-    }
 
     std::cout << "Creating billboard shader" << std::endl;
     if (!billBoardShader.loadFromFile("billboard.vert", "billboard.frag"))
     {
         std::cerr << "Failed to load billboard shaders\n";
     }
-    sf::Texture billboardTexture;
-    if(!billboardTexture.loadFromFile("ant-top-down.png"))
-    {
-        std::cerr << "Failed to load billboard sprite\n";
-    }
-    billboardTexture.setSmooth(true);
+    // sf::Texture billboardTexture;
+    // if(!billboardTexture.loadFromFile("ant-top-down.png"))
+    // {
+    //     std::cerr << "Failed to load billboard sprite\n";
+    // }
+    // billboardTexture.setSmooth(true);
 
-    billBoardShader.setUniform("radius", radius);
-    billBoardShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + 10, conf::window_size.y / 2 + 10));
+    billBoardShader.setUniform("radius", conf::worldRadius);
+    billBoardShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2, conf::window_size.y / 2));
     billBoardShader.setUniform("zoom", 1.f);
-    billBoardShader.setUniform("texture", billboardTexture);
+  //  billBoardShader.setUniform("texture", billboardTexture);
+    billBoardShader.setUniform("distance", 256.f);
+    billBoardShader.setUniform("screenSize", conf::window_size);
+    billBoardShader.setUniform("faceSize", 200.f);
 
     billBoards = sf::VertexArray(sf::Quads, 4*6*9); // just want to test one at each midpoint
     //std::cout << "Bill" << billBoards.getVertexCount() << std::endl;
@@ -212,25 +188,10 @@ void World::Init()
     }
     ////////////////////////////
 
+    std::cout << "world init fin" << std::endl;
 
 }
 
-Cell *World::at(int x, int y)
-{
-    // int cx = x / conf::chunkSize;
-    // int cy = y / conf::chunkSize;
-    // if(!chunkManager->hasLoaded(cx,cy))
-    // {
-    //     return nullptr;
-    // }
-    // int lx = x % conf::chunkSize;
-    // int ly = y % conf::chunkSize;
-    // if(lx < 0 || ly < 0)
-    // {
-    //     return nullptr;
-    // }
-    // return chunkManager->getChunk(cx,cy)->at(lx, ly);
-}
 
 Cell *World::globalat(int x, int y)
 {
@@ -257,8 +218,8 @@ Cell *World::globalat(int x, int y)
 
     // std::cout << "FX,FY: " << fx << ", " << fy << std::endl;
     // std::cout << "CX,CY: " << chunkX << ", " << chunkY << std::endl;
-    auto it = faceLookup.find({fx, fy});
-    if (it == faceLookup.end())
+    auto it = conf::faceLookup.find({fx, fy});
+    if (it == conf::faceLookup.end())
     {
         std::cerr << "Invalid face mapping for fx=" << fx << ", fy=" << fy << std::endl;
         return nullptr;
@@ -287,14 +248,56 @@ Cell *World::globalat(int x, int y)
     return chunk->at(lx, ly);
 }
 
-Chunk *World::getChunkAt(int chunkX, int chunkY)
+Chunk *World::getChunkAt(int x, int y)
 {
-    //     if (!chunkManager) {
-    //     std::cout << "chunkManager is null!" << std::endl;
-    //     return nullptr;
-    // }
-    //    // std::cout << "World getting chunk" << std::endl;
-    //     return chunkManager->getChunk(chunkX, chunkY);
+       const int totalWidth = conf::worldSize * 4;
+    const int totalHeight = conf::worldSize * 3;
+
+    // Wrap coordinates within cube map bounds
+    int wrappedX = (x % totalWidth + totalWidth) % totalWidth;
+    int wrappedY = (y % totalHeight + totalHeight) % totalHeight;
+
+    // Determine which unfolded face (fx, fy) the coordinates are on
+    int fx = wrappedX / conf::worldSize;
+    int fy = wrappedY / conf::worldSize;
+
+    // Compute local face coordinates
+    int faceStartX = fx * conf::worldSize;
+    int faceStartY = fy * conf::worldSize;
+
+    int localX = wrappedX - faceStartX;
+    int localY = wrappedY - faceStartY;
+
+    int chunkX = localX / conf::chunkSize;
+    int chunkY = localY / conf::chunkSize;
+
+    // std::cout << "FX,FY: " << fx << ", " << fy << std::endl;
+    // std::cout << "CX,CY: " << chunkX << ", " << chunkY << std::endl;
+    auto it = conf::faceLookup.find({fx, fy});
+    if (it == conf::faceLookup.end())
+    {
+        std::cerr << "Invalid face mapping for fx=" << fx << ", fy=" << fy << std::endl;
+        return nullptr;
+    }
+    int face = it->second;
+
+    // If invalid face mapping
+    if (face < 0 || face > 5)
+    {
+        std::cerr << "Invalid face mapping for (x=" << x << ", y=" << y
+                  << ") → (fx=" << fx << ", fy=" << fy << ")\n";
+        return nullptr;
+    }
+    //   std::cout << "Looking for face " << face << ", chunk (" << chunkX << ", " << chunkY << ")" << std::endl;
+    // Retrieve chunk
+    auto chunk = chunkManager->getChunk(chunkX, chunkY, face);
+    if (!chunk)
+    {
+        //   std::cerr << "Missing chunk at face " << face << ", chunk (" << chunkX << ", " << chunkY << ")\n";
+        return nullptr;
+    }
+
+    return chunk;
 }
 
 void World::update()
@@ -353,10 +356,7 @@ void World::drawGrid(sf::RenderWindow &window)
 {
 }
 
-void World::toggleSimState()
-{
-    running = !running;
-}
+
 
 World::~World()
 {
@@ -373,12 +373,3 @@ int World::getHeight()
     return 0;
 }
 
-std::vector<std::unique_ptr<Cell>> World::getGrid()
-{
-    return std::vector<std::unique_ptr<Cell>>();
-}
-
-std::vector<Cell> World::getBase()
-{
-    return std::vector<Cell>();
-}

@@ -6,6 +6,9 @@ uniform float rotY;
 uniform vec2 screenCenter;
 uniform float zoom;
 uniform bool renderSphere;
+uniform float distance;
+uniform vec2 screenSize;
+uniform float faceSize;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -49,11 +52,10 @@ void main()
     vPosition = rotatedPos;
     vNormal = normalize(rotatedPos);
 
-    float distance = 256.0;
     float scale = distance / (distance + rotatedPos.z);
     vec2 projPos = screenCenter + vec2(rotatedPos.x, -rotatedPos.y) * scale;
     projPos = screenCenter + (projPos - screenCenter) * zoom;
-    ndc = (projPos / vec2(400.0, 400.0)) - vec2(1.0, 1.0);
+    vec2 ndc = (projPos / screenCenter) * 1.3 - vec2(1.0, 1.0);
     ndc.y = -ndc.y;
 
     gl_Position = vec4(ndc, 0.0, 1.0);
@@ -69,8 +71,6 @@ void main()
         else if (face == 4) offset = vec2(1.0, 0.0);
         else if (face == 5) offset = vec2(1.0, 2.0);
 
-        float faceSize = 200.0;
-        vec2 screenSize = vec2(1000.0, 1000.0);
 
         vec2 faceLocal = (pos + vec2(1.0)) / 2.0;
         vec2 pixelPos = (offset + faceLocal) * faceSize;

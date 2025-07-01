@@ -50,5 +50,19 @@ namespace conf
     double locationSpawnChance = 0.001; //0 - 1
     int numberOfTeams = 16; // >0
     double chosenTeam; //0 - 1 (chosen * num teams = team)
-    
+    float worldRadius = 150.f;
+    const std::map<std::pair<int, int>, int> faceLookup = { //for when looking up x,y coords
+            {{0,0},0},
+            {{0,1},4},
+            {{0,2},5},
+            {{1,0},3},
+            {{1,1},4},
+            {{1,2},5},
+            {{2,0},1},
+            {{2,1},4},
+            {{2,2},5},
+            {{3,0},2},
+            {{3,1},4},
+            {{3,2},5}
+        };
 }

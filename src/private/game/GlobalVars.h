@@ -42,6 +42,8 @@ namespace conf
     extern double locationSpawnChance; //0 - 1
     extern int numberOfTeams; // >0
     extern double chosenTeam; //0 - 1 (chosen * num teams = team)
+    extern float worldRadius;
+    extern const std::map<std::pair<int, int>, int> faceLookup;
 
 }
 
