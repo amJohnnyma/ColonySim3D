@@ -189,6 +189,34 @@ void World::Init()
     ////////////////////////////
 
     std::cout << "world init fin" << std::endl;
+
+       sf::Color faceColors[6] = {
+        sf::Color::Red,    // face 0
+        sf::Color::Green,  // face 1
+        sf::Color::Blue,   // face 2
+        sf::Color::Yellow, // face 3
+        sf::Color::Cyan,   // face 4
+        sf::Color::Magenta // face 5
+    };
+
+    for(int face = 0; face < 6; face++)
+    {
+        for(int i = 0; i < conf::worldSize; i ++)
+        {
+            for(int j = 0; j < conf::worldSize; j ++)
+            {
+                int quadIndex = (face * conf::worldSize * conf::worldSize + j * conf::worldSize + i) * 4;
+                //  std::cout << "Index: " << quadIndex << std::endl;
+                if (quadIndex + 3 < vertices.getVertexCount())
+                {
+                    for (int k = 0; k < 4; ++k)
+                    {
+                        vertices[quadIndex + k].color = faceColors[face];
+                    }
+                }
+            }
+        }
+    }
 }
 
 Cell *World::globalat(int x, int y)
@@ -342,6 +370,7 @@ void World::update()
 //    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + getSliderValues("globePositionX"), conf::window_size.y / 2 + getSliderValues("globePositionY")));
    // std::cout << "X: " << conf::window_size.x / 2 + getSliderValues("globePositionX") << ", Y: " << conf::window_size.y / 2 + getSliderValues("globePositionY") << std::endl;
     terrainShader.setUniform("radius", conf::worldRadius + getSliderValues("globePositionY"));
+    terrainShader.setUniform("faceSize", getSliderValues("globePositionX") + 0.f);
 }
 
 void World::render(sf::RenderWindow &window)
@@ -413,7 +442,7 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 
         Vec3 inverseRot = rotateX(rotateY(viewDir, -rotationY), -rotationX);
 
-        Vec3 camPos(0.f, 0.f, -1.f);
+        Vec3 camPos(0.f, 0.f, 0.f);
 
         Vec3 origin = camPos;
         Vec3 dir = inverseRot; // already normalized
@@ -450,33 +479,33 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 
         if (absZ >= absX && absZ >= absY) {
             if (p.z > 0) { // front
-                face = 0;
+                face = 2;
                 u =  p.x / absZ;
                 v =  p.y / absZ;
             } else {       // back
-                face = 1;
+                face = 0;
                 u = -p.x / absZ;
                 v =  p.y / absZ;
             }
         }
         else if (absX >= absY) {
             if (p.x > 0) { // right
-                face = 3;
+                face = 1;
                 u = -p.z / absX;
                 v =  p.y / absX;
             } else {       // left
-                face = 2;
+                face = 3;
                 u =  p.z / absX;
                 v =  p.y / absX;
             }
         }
         else {
             if (p.y > 0) { // top
-                face = 4;
+                face = 5;
                 u =  p.x / absY;
                 v = -p.z / absY;
             } else {       // bottom
-                face = 5;
+                face = 4;
                 u =  p.x / absY;
                 v =  p.z / absY;
             }
@@ -488,8 +517,8 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 
         std::cout << "Clicked face " << std::to_string(face) << " on " << std::to_string(i) << ", " << std::to_string(j) << std::endl;
 
-       // Cell* cell = cellat(face,i,j);
-        int quadIndex = (face * conf::worldSize * conf::worldSize + i * conf::worldSize + j) * 4;
+        Cell* cell = cellat(face,i,j);
+        int quadIndex = (cell->face * conf::worldSize * conf::worldSize + cell->x * conf::worldSize + cell->y) * 4;
         //  std::cout << "Index: " << quadIndex << std::endl;
         if (quadIndex + 3 < vertices.getVertexCount())
         {
