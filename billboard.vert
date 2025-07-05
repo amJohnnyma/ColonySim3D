@@ -55,7 +55,7 @@ void main()
     float scale = distance / (distance + rotatedPos.z);
     vec2 projPos = screenCenter + vec2(rotatedPos.x, -rotatedPos.y) * scale;
     projPos = screenCenter + (projPos - screenCenter) * zoom;
-    vec2 ndc = (projPos / screenCenter) * 1.3 - vec2(1.0, 1.0);
+    vec2 ndc = (projPos / screenCenter) - vec2(1.0, 1.0);
     ndc.y = -ndc.y;
 
     gl_Position = vec4(ndc, 0.0, 1.0);
