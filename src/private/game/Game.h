@@ -10,7 +10,7 @@
 #include <thread>
 #include <chrono>
 
-
+class UIManager;
 
 class Game
 {
@@ -20,6 +20,7 @@ class Game
         window* wind;        
         State currentState = State::PAUSED;
         InputManager* inputManager;
+        UIManager* uiManager;
 
     private:
         Game(int windowWidth, int windowHeight, int worldWidth, int worldHeight);

@@ -318,10 +318,9 @@ void World::render(sf::RenderWindow &window)
     drawEntities(window);
     
     glDisable(GL_CULL_FACE);
-    window.display();
 }
 
-void World::updateInputs(float rotationX, float rotationY, float zoom, sf::RenderWindow & window)
+void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderWindow & window)
 {
     this->zoom = zoom;
     this->rotationX = rotationX;

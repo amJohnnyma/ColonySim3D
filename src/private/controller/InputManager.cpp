@@ -54,7 +54,7 @@
 
         lastMousePos = currentMousePos;
     }
-    world->updateInputs(rotationX,rotationY,zoom,window);
+    world->updateView(rotationX,rotationY,zoom,window);
 
 }
 

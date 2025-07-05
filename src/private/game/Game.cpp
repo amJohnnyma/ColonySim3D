@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "../UI/UIManager.h"
 
 Game* Game::instance = nullptr;
 
@@ -51,6 +52,7 @@ void Game::run()
 
 void Game::renderFrame() {
     world->render(*wind->wndw);   
+    uiManager->draw(*wind->wndw);
     wind->wndw->display();
 }
 
@@ -80,13 +82,14 @@ void Game::runningState()
     }
 
 
+    inputManager->update(*wind->wndw);
     auto now = clock::now();
     if (now - lastUpdate >= updateInterval)
     {
         world->update();
         lastUpdate = now;
     }
-    inputManager->update(*wind->wndw);
+    uiManager->update(*wind->wndw, event);
     renderFrame();
     
 }
@@ -151,6 +154,8 @@ Game::Game(int windowWidth, int windowHeight, int worldWidth, int worldHeight)
     world->Init(); 
     std::cout << "Input manager init" << std::endl;
     inputManager = new InputManager(world,*wind->wndw);
+    std::cout << "UI manager init" << std::endl;
+    uiManager = new UIManager(world, *wind->wndw);
     std::cout << "Game init fin" << std::endl;
 }
 
