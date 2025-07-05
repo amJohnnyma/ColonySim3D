@@ -11,7 +11,7 @@ World::World(sf::RenderWindow &window)
 
 void World::Init()
 {
-    center = {conf::window_size.x/2, conf::window_size.y/2};
+    center = {conf::window_size.x / 2, conf::window_size.y / 2};
     std::cout << "Creating shader" << std::endl;
     if (!terrainShader.loadFromFile("terrain.vert", "terrain.frag"))
     {
@@ -24,7 +24,6 @@ void World::Init()
     terrainShader.setUniform("distance", conf::distance);
     terrainShader.setUniform("screenSize", conf::window_size);
     terrainShader.setUniform("faceSize", 20.f);
-    
 
     std::cout << "Creating vertices" << std::endl;
     vertices = sf::VertexArray(sf::Quads, totalVertices);
@@ -190,7 +189,7 @@ void World::Init()
 
     std::cout << "world init fin" << std::endl;
 
-       sf::Color faceColors[6] = {
+    sf::Color faceColors[6] = {
         sf::Color::Red,    // face 0
         sf::Color::Green,  // face 1
         sf::Color::Blue,   // face 2
@@ -199,11 +198,11 @@ void World::Init()
         sf::Color::Magenta // face 5
     };
 
-    for(int face = 0; face < 6; face++)
+    for (int face = 0; face < 6; face++)
     {
-        for(int i = 0; i < conf::worldSize; i ++)
+        for (int i = 0; i < conf::worldSize; i++)
         {
-            for(int j = 0; j < conf::worldSize; j ++)
+            for (int j = 0; j < conf::worldSize; j++)
             {
                 int quadIndex = (face * conf::worldSize * conf::worldSize + j * conf::worldSize + i) * 4;
                 //  std::cout << "Index: " << quadIndex << std::endl;
@@ -276,14 +275,16 @@ Cell *World::globalat(int x, int y)
 
 Cell *World::cellat(int face, int x, int y)
 {
-        // Validate face index [0..5]
-    if (face < 0 || face > 5) {
+    // Validate face index [0..5]
+    if (face < 0 || face > 5)
+    {
         std::cerr << "cellat: invalid face index " << face << std::endl;
         return nullptr;
     }
 
     // Validate local coordinates within face bounds
-    if (x < 0 || x >= conf::worldSize || y < 0 || y >= conf::worldSize) {
+    if (x < 0 || x >= conf::worldSize || y < 0 || y >= conf::worldSize)
+    {
         std::cerr << "cellat: coordinates out of bounds on face " << face
                   << ": (" << x << ", " << y << ")" << std::endl;
         return nullptr;
@@ -298,13 +299,13 @@ Cell *World::cellat(int face, int x, int y)
 
     // Retrieve chunk
     auto chunk = chunkManager->getChunk(chunkX, chunkY, face);
-    if (!chunk) {
+    if (!chunk)
+    {
         // Chunk missing, possibly not loaded
         // std::cerr << "cellat: chunk missing at face " << face
         //           << ", chunk (" << chunkX << ", " << chunkY << ")\n";
         return nullptr;
     }
-
 
     // Return the cell at local coords within chunk
     return chunk->at(localX, localY);
@@ -362,13 +363,11 @@ Chunk *World::getChunkAt(int x, int y)
     return chunk;
 }
 
-
-
 void World::update()
 {
-    // createACO(); //    
-//    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + getSliderValues("globePositionX"), conf::window_size.y / 2 + getSliderValues("globePositionY")));
-   // std::cout << "X: " << conf::window_size.x / 2 + getSliderValues("globePositionX") << ", Y: " << conf::window_size.y / 2 + getSliderValues("globePositionY") << std::endl;
+    // createACO(); //
+    //    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + getSliderValues("globePositionX"), conf::window_size.y / 2 + getSliderValues("globePositionY")));
+    // std::cout << "X: " << conf::window_size.x / 2 + getSliderValues("globePositionX") << ", Y: " << conf::window_size.y / 2 + getSliderValues("globePositionY") << std::endl;
     terrainShader.setUniform("radius", conf::worldRadius + getSliderValues("radius"));
     terrainShader.setUniform("faceSize", getSliderValues("flatSize") + 0.f);
 }
@@ -381,17 +380,17 @@ void World::render(sf::RenderWindow &window)
     glFrontFace(GL_CCW);
     glClear(GL_DEPTH_BUFFER_BIT);
     drawTerrain(window);
-   // drawEntities(window);
+    // drawEntities(window);
 
     glDisable(GL_CULL_FACE);
 
-    //testing
+    // testing
 
-    if(worldCBValues["selectMode"])
+    if (worldCBValues["selectMode"])
     {
         float frontZ = -conf::worldRadius - getSliderValues("radius");
         float scale = conf::distance / (conf::distance + frontZ);
-        projectedRadius = (conf::worldRadius) * zoom * scale * 0.65;
+        projectedRadius = (conf::worldRadius)*zoom * scale * 0.65;
 
         outline = sf::CircleShape(projectedRadius);
         outline.setOrigin(projectedRadius, projectedRadius);
@@ -401,9 +400,6 @@ void World::render(sf::RenderWindow &window)
         outline.setFillColor(sf::Color::Transparent);
         window.draw(outline);
     }
-
-
-
 }
 
 void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderWindow &window)
@@ -416,114 +412,41 @@ void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderW
 void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 {
 
-   //if world is within start and end
-   //convert to the grid system
-    //xy /  
-    if(isOverWorld(start) && isOverWorld(end))
+    // if world is within start and end
+    // convert to the grid system
+    // xy /
+    if (isOverWorld(start) && isOverWorld(end))
     {
         std::cout << "Selecting tiles from " << start.x << "," << start.y << " to " << end.x << "," << end.y << std::endl;
-        sf::Vector2f mouseScreen(static_cast<float>(start.x), static_cast<float>(start.y));
+        math::Ray ray = math::screenToRayDirection(
+            start,
+            center,
+            zoom,
+            rotationX,
+            rotationY,
+            conf::distance,
+            conf::worldRadius,
+            getSliderValues("radius"));
 
-        // Step 1: Undo zoom (reverse of shader logic)
-        sf::Vector2f unzoomed = center + (mouseScreen - center) / zoom;
-
-        // Step 2: Undo screenCenter projection -> get 2D coords in perspective-projected space
-        sf::Vector2f projected = unzoomed - center;
-
-        // Step 3: Create view-space direction
-        float scale = 1.f; // because we want ray direction, not scaled position
-        Vec3 viewDir(projected.x, -projected.y, 1.0f); // +Z is forward in shader
-
-        // Step 4: Normalize direction
-        float len = std::sqrt(viewDir.x*viewDir.x + viewDir.y*viewDir.y + viewDir.z*viewDir.z);
-        viewDir.x /= len;
-        viewDir.y /= len;
-        viewDir.z /= len;
-
-        Vec3 inverseRot = rotateX(rotateY(viewDir, -rotationY), -rotationX);
-
-        Vec3 camPos(0.f, 0.f, 0.f);
-
-        Vec3 origin = camPos;
-        Vec3 dir = inverseRot; // already normalized
-        float radius = conf::worldRadius;
-
-        // Ray-sphere intersection (origin + t*dir) where length == radius
-        // Solve: (o + td)² = r² → quadratic: At² + Bt + C = 0
-        float A = 1.0f; // dir is normalized
-        float B = 2.0f * (origin.x * dir.x + origin.y * dir.y + origin.z * dir.z);
-        float C = origin.x*origin.x + origin.y*origin.y + origin.z*origin.z - radius*radius;
-
-        float discriminant = B*B - 4*A*C;
-        if (discriminant < 0) {
+        std::optional<math::Vec3> intersection = math::intersectSphere(ray.origin, ray.direction, conf::worldRadius);
+        if (!intersection.has_value())
+        {
             // No intersection — mouse is outside sphere
             return;
         }
 
-        float t = (-B - std::sqrt(discriminant)) / (2.0f * A); // use closer intersection
-        Vec3 hitPoint = Vec3(
-            origin.x + t * dir.x,
-            origin.y + t * dir.y,
-            origin.z + t * dir.z
-        );
+        math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize);
 
-        Vec3 p = hitPoint.normalized(); // ensure it's unit length
+        std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
 
-        float absX = std::abs(p.x);
-        float absY = std::abs(p.y);
-        float absZ = std::abs(p.z);
-
-        // Determine cube face (major axis)
-        int face;
-        float u, v;
-
-        if (absZ >= absX && absZ >= absY) {
-            if (p.z > 0) { // front
-                face = 0;
-                u =  p.x / absZ;
-                v =  p.y / absZ;
-            } else {       // back
-                face = 1;
-                u = -p.x / absZ;
-                v =  p.y / absZ;
-            }
-        }
-        else if (absX >= absY) {
-            if (p.x > 0) { // right
-                face = 3;
-                u = -p.z / absX;
-                v =  p.y / absX;
-            } else {       // left
-                face = 2;
-                u =  p.z / absX;
-                v =  p.y / absX;
-            }
-        }
-        else {
-            if (p.y > 0) { // top
-                face = 4;
-                u =  p.x / absY;
-                v = -p.z / absY;
-            } else {       // bottom
-                face = 5;
-                u =  p.x / absY;
-                v =  p.z / absY;
-            }
-        }
-
-        float step = 2.f / float(conf::worldSize); 
-        int i = std::clamp(int((u + 1.f) / step), 0, conf::worldSize - 1);
-        int j = std::clamp(int((v + 1.f) / step), 0, conf::worldSize - 1);
-
-        std::cout << "Clicked face " << std::to_string(face) << " on " << std::to_string(i) << ", " << std::to_string(j) << std::endl;
-
-        Cell* cell = cellat(face,i,j);
+        float step = 2.f / float(conf::worldSize);
+        Cell *cell = cellat(coord.face, coord.i, coord.j);
         int quadIndex = (cell->face * conf::worldSize * conf::worldSize + cell->x * conf::worldSize + cell->y) * 4;
         //  std::cout << "Index: " << quadIndex << std::endl;
         if (quadIndex + 3 < vertices.getVertexCount())
         {
-            float x0 = -1.f + i * step;
-            float y0 = -1.f + j * step;
+            float x0 = -1.f + coord.i * step;
+            float y0 = -1.f + coord.j * step;
             float x1 = x0 + step;
             float y1 = y0 + step;
 
@@ -539,7 +462,6 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
                 vertices[quadIndex + k].color = sf::Color::White;
             }
         }
-
     }
 }
 
@@ -548,7 +470,6 @@ bool World::isOverWorld(sf::Vector2i mousePos)
     sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
     sf::Vector2f circleCenter = outline.getPosition(); // Or same as `center`
-
 
     float distX = mousePosF.x - circleCenter.x;
     float distY = mousePosF.y - circleCenter.y;
