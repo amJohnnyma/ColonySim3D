@@ -40,7 +40,7 @@
     }
 
      // If dragging, update rotation based on horizontal mouse movement
-    if (dragging)
+    if (dragging && uiManager->isCheckboxChecked("selectMode"))
     {
         sf::Vector2i currentMousePos = sf::Mouse::getPosition(window);
         int dx = currentMousePos.x - lastMousePos.x;
@@ -62,9 +62,9 @@
 
 void InputManager::update(sf::RenderWindow& window) {
     keysPressedOnce.clear();
-    if(uiManager->isCheckboxChecked("selectMode"))
+    for(auto& [name, val] : uiManager->getCheckBoxMap())
     {
-        std::cout << "Select mode is active!" << std::endl;
+        world->updateCBValues(name, val);
     }
 }
 

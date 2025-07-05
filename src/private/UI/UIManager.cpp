@@ -18,7 +18,9 @@ UIManager::UIManager(World* world, sf::RenderWindow &window)
         sf::Color(41, 39, 39, 255), //background col
         sf::Color(217, 126, 95), //top bar col
         sf::Color(46, 45, 46)); //text col
-    CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "This is A CheckBox!", sf::Color(255, 255, 255));
+    CheckBox* selectModeCB = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
+    CheckBox* showFlatMapCB = new CheckBox(mainGUI->getGUIColor(), "ShowFlatMap", sf::Color(255, 255, 255));
+  //  CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
  //   text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
  //   Slider<int, 1>* newSlider = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "This is a Slider!", 10, 900);
    
@@ -28,7 +30,9 @@ UIManager::UIManager(World* world, sf::RenderWindow &window)
     // texts.push_back({Text,"main"});
     // sliders.push_back({newSlider,"main"});
     addGUI("main", mainGUI);
-    addCheckBox("worldSelectBox", checkBox);
+    addCheckBox("selectMode", selectModeCB);
+    addCheckBox("showFlatMap", showFlatMapCB);
+   // addCheckBox("selectMode", selectModeCB);
 }
 
 UIManager::~UIManager()
@@ -58,12 +62,18 @@ void UIManager::draw(sf::RenderWindow& window)
     sf::View origView = window.getView();
     window.setView(window.getDefaultView());
     for (auto& [_, g] : guis)
+    {
         g->DRAW_GUI(window);
         slot++;
 
-    for (auto& [_, cb] : checkBoxes)
-        cb->Draw(window, slot, guis["main"]->getGUI(), checkBoxMap["selectMode"]);
+    }
+
+    for (auto& [name, cb] : checkBoxes)
+    {
+        cb->Draw(window, slot, guis["main"]->getGUI(), checkBoxMap[name]);
         slot++;
+
+    }
 
    // for (auto& [_, s] : sliders)
         //s->DRAW_SLIDER(window);

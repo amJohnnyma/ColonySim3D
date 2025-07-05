@@ -36,6 +36,8 @@ class World
         float rotationY = 0.f;
         float zoom = 1.f;
 
+        std::unordered_map<std::string, bool> worldCBValues; // Checkbox values for world state
+
     public:
     private:
         void drawGrid(sf::RenderWindow & window);
@@ -55,6 +57,19 @@ class World
         void update();
         void render(sf::RenderWindow & window);
         void updateView(float rotationX, float rotationY, float zoom, sf::RenderWindow &window);
+        void updateCBValues(const std::string& name, bool value) {
+            worldCBValues[name] = value;
+        }
+        bool getCBValues(std::string name)
+        {
+            if (worldCBValues.find(name) != worldCBValues.end())
+                return worldCBValues[name];
+            else
+            {
+                worldCBValues[name] = false;
+                return false; 
+            }
+        }
 };
 
 

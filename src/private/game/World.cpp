@@ -339,8 +339,12 @@ void World::drawTerrain(sf::RenderWindow &window)
         std::cout << "No vertices to draw!\n";
     terrainShader.setUniform("renderSphere", true); // Sphere mode
     window.draw(vertices, &terrainShader);
+    if(getCBValues("showFlatMap"))
+    {
     terrainShader.setUniform("renderSphere", false); // plane mode/
     window.draw(vertices, &terrainShader);
+
+    }
 
 }
 
@@ -354,8 +358,11 @@ void World::drawEntities(sf::RenderWindow &window)
 
     billBoardShader.setUniform("renderSphere", true); // Sphere mode
         window.draw(billBoards, &billBoardShader);
+        if(getCBValues("showFlatMap"))
+    {
     billBoardShader.setUniform("renderSphere", false); // plane mode
         window.draw(billBoards, &billBoardShader);
+    }
 
 }
 

@@ -31,6 +31,9 @@ class UIManager
         bool isCheckboxChecked(std::string name) {
             return checkBoxMap[name];
         }
+        std::unordered_map<std::string, bool>& getCheckBoxMap() {
+            return checkBoxMap;
+        }
 
 
     /*
