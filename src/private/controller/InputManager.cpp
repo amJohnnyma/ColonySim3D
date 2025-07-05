@@ -1,5 +1,6 @@
 #include "InputManager.h"
 #include "../game/World.h"
+#include "../UI/UIManager.h"
 
  void InputManager::processEvent(const sf::Event& event, sf::RenderWindow& window)
 {
@@ -61,6 +62,10 @@
 
 void InputManager::update(sf::RenderWindow& window) {
     keysPressedOnce.clear();
+    if(uiManager->isCheckboxChecked("selectMode"))
+    {
+        std::cout << "Select mode is active!" << std::endl;
+    }
 }
 
 void InputManager::draw(sf::RenderWindow& window) {

@@ -309,7 +309,6 @@ void World::update()
 void World::render(sf::RenderWindow &window)
 {
 
-    window.clear(sf::Color::Black);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);

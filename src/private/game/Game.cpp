@@ -51,6 +51,7 @@ void Game::run()
 }
 
 void Game::renderFrame() {
+    wind->wndw->clear(sf::Color::Black);
     world->render(*wind->wndw);   
     uiManager->draw(*wind->wndw);
     wind->wndw->display();
@@ -156,6 +157,7 @@ Game::Game(int windowWidth, int windowHeight, int worldWidth, int worldHeight)
     inputManager = new InputManager(world,*wind->wndw);
     std::cout << "UI manager init" << std::endl;
     uiManager = new UIManager(world, *wind->wndw);
+    inputManager->setUIManager(uiManager);
     std::cout << "Game init fin" << std::endl;
 }
 

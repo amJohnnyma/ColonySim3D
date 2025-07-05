@@ -19,97 +19,56 @@ UIManager::UIManager(World* world, sf::RenderWindow &window)
         sf::Color(217, 126, 95), //top bar col
         sf::Color(46, 45, 46)); //text col
     CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "This is A CheckBox!", sf::Color(255, 255, 255));
-    text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
-    Slider<int, 1>* newSlider = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "This is a Slider!", 10, 900);
+ //   text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
+ //   Slider<int, 1>* newSlider = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "This is a Slider!", 10, 900);
    
 
-    guis.push_back({mainGUI, "main"});
-    checkboxes.push_back({checkBox, "main"});
-    texts.push_back({Text,"main"});
-    sliders.push_back({newSlider,"main"});
+    // guis.push_back({mainGUI, "main"});
+    // checkboxes.push_back({checkBox, "main"});
+    // texts.push_back({Text,"main"});
+    // sliders.push_back({newSlider,"main"});
+    addGUI("main", mainGUI);
+    addCheckBox("worldSelectBox", checkBox);
 }
 
 UIManager::~UIManager()
 {
-    for (auto& elem : guis)        
-        delete elem.first;
+    for (auto& [_, g] : guis)
+        delete g;
+
+    for (auto& [_, cb] : checkBoxes)
+        delete cb;
+
+    for (auto& [_, s] : sliders)
+        delete s;
 }
 
 void UIManager::update(sf::RenderWindow& window, sf::Event& event)
 {    
-    for(auto& elem: guis)
-    {
-        elem.first->UPDATE_GUI(window);       
-        
-    }
+    for (auto& [_, g] : guis)
+        g->UPDATE_GUI(window);
 
-    for(auto& elem:buttons)
-    {
-        if(elem.first->isButtonClicked(window))
-        {
-            
-        }
-    }
 
     
 }
-
 void UIManager::draw(sf::RenderWindow& window)
 {
     int slot = 1;
 
     sf::View origView = window.getView();
     window.setView(window.getDefaultView());
-    for(auto& elem : guis)
-    {
-        elem.first->DRAW_GUI(window);
-        for(auto& b: buttons)
-        {
-            if(elem.second == b.second)
-            {
-                b.first->Draw(window,elem.first->getGUI(),elem.first->getGUIColor(),slot);
-                slot++;
-            }
-        }
-        for(auto& b: checkboxes)
-        {
-            if(elem.second == b.second)
-            {
-                bool tt = true;
-                b.first->Draw(window,slot,elem.first->getGUI(), tt);
-                slot++;
-            }
+    for (auto& [_, g] : guis)
+        g->DRAW_GUI(window);
+        slot++;
 
-        }
-        for(auto& b: listBoxes)
-        {
-            if(elem.second == b.second)
-            {
-              //  b.first->updateListBox(elem.first->getGUI(),slot,window);
-               // slot++;
-            }
+    for (auto& [_, cb] : checkBoxes)
+        cb->Draw(window, slot, guis["main"]->getGUI(), checkBoxMap["selectMode"]);
+        slot++;
 
-        }
-        for(auto& b: sliders)
-        {
-            if(elem.second == b.second)
-            {
-                b.first->draw(window,slot,elem.first->getGUI(),&slot);
-                slot++;
-            }
-            
-        }
-        for(auto& b: texts)
-        {
-            if(elem.second == b.second)
-            {
-                b.first->Draw(window,slot,elem.first->getGUI());
-                slot++;
-            }
-
-        }
-
-    }   
+   // for (auto& [_, s] : sliders)
+        //s->DRAW_SLIDER(window);
+        //slot++;
+ //   std::cout << std::to_string(checkBoxMap["selectMode"]) << std::endl;
 
     window.setView(origView);
 }
@@ -139,4 +98,16 @@ void UIManager::setVisibilityForState(State gameState)
     }
 }
 
+
+
 }
+    void UIManager::addGUI(const std::string& name, gui* g) {
+        guis[name] = g;
+    }
+    void UIManager::addCheckBox(const std::string& name, CheckBox* cb) {
+        checkBoxes[name] = cb;
+    }
+    void UIManager::addSlider(const std::string& name, Slider<int, 1>* s) {
+        sliders[name] = s;
+    }
+

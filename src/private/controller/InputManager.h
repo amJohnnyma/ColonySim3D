@@ -8,6 +8,8 @@
 
 class Controller;
 class World;
+class UIManager;
+
 class InputManager {
 private:
     std::map<sf::Keyboard::Key, bool> keyStates;
@@ -27,6 +29,7 @@ private:
     float rotationX, rotationY;
     float rotationSpeed = 0.0005f;
     sf::Vector2i currentMousePos;
+    UIManager* uiManager;
 
 public:
     void processEvent(const sf::Event& event, sf::RenderWindow& window);
@@ -39,6 +42,7 @@ public:
     float getCurrentZoom(){return currentZoom;}
     sf::View& getView() { return view; }
     void setView(const sf::View& v) { view = v; }
+    void setUIManager(UIManager* ui) { uiManager = ui; }
 
 
     InputManager(World* world, sf::RenderWindow& window);
