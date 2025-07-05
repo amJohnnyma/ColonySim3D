@@ -20,8 +20,8 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     CheckBox *showFlatMapCB = new CheckBox(mainGUI->getGUIColor(), "ShowFlatMap", sf::Color(255, 255, 255));
     //  CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
     //   text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
-    Slider<int, 1>* globePositionX = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "globePositionX", 10, 900);
-    Slider<int, 1>* globePositionY = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "globePositionY", 10, 900);
+    Slider<int, 1>* radius = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "Radius", 10, 900);
+    Slider<int, 1>* flatSize = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "FlatMapSize", 10, 900);
 
     // guis.push_back({mainGUI, "main"});
     // checkboxes.push_back({checkBox, "main"});
@@ -30,8 +30,8 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     addGUI("main", mainGUI);
     addCheckBox("selectMode", selectModeCB);
     addCheckBox("showFlatMap", showFlatMapCB);
-    addSlider("globePositionX", globePositionX);
-    addSlider("globePositionY", globePositionY);
+    addSlider("radius", radius);
+    addSlider("flatSize", flatSize);
     // addCheckBox("selectMode", selectModeCB);
 }
 

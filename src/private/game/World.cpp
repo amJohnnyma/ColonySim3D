@@ -369,8 +369,8 @@ void World::update()
     // createACO(); //    
 //    terrainShader.setUniform("screenCenter", sf::Glsl::Vec2(conf::window_size.x / 2 + getSliderValues("globePositionX"), conf::window_size.y / 2 + getSliderValues("globePositionY")));
    // std::cout << "X: " << conf::window_size.x / 2 + getSliderValues("globePositionX") << ", Y: " << conf::window_size.y / 2 + getSliderValues("globePositionY") << std::endl;
-    terrainShader.setUniform("radius", conf::worldRadius + getSliderValues("globePositionY"));
-    terrainShader.setUniform("faceSize", getSliderValues("globePositionX") + 0.f);
+    terrainShader.setUniform("radius", conf::worldRadius + getSliderValues("radius"));
+    terrainShader.setUniform("faceSize", getSliderValues("flatSize") + 0.f);
 }
 
 void World::render(sf::RenderWindow &window)
@@ -389,7 +389,7 @@ void World::render(sf::RenderWindow &window)
 
     if(worldCBValues["selectMode"])
     {
-        float frontZ = -conf::worldRadius - getSliderValues("globePositionY");
+        float frontZ = -conf::worldRadius - getSliderValues("radius");
         float scale = conf::distance / (conf::distance + frontZ);
         projectedRadius = (conf::worldRadius) * zoom * scale * 0.65;
 
@@ -479,33 +479,33 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 
         if (absZ >= absX && absZ >= absY) {
             if (p.z > 0) { // front
-                face = 2;
+                face = 0;
                 u =  p.x / absZ;
                 v =  p.y / absZ;
             } else {       // back
-                face = 0;
+                face = 1;
                 u = -p.x / absZ;
                 v =  p.y / absZ;
             }
         }
         else if (absX >= absY) {
             if (p.x > 0) { // right
-                face = 1;
+                face = 3;
                 u = -p.z / absX;
                 v =  p.y / absX;
             } else {       // left
-                face = 3;
+                face = 2;
                 u =  p.z / absX;
                 v =  p.y / absX;
             }
         }
         else {
             if (p.y > 0) { // top
-                face = 5;
+                face = 4;
                 u =  p.x / absY;
                 v = -p.z / absY;
             } else {       // bottom
-                face = 4;
+                face = 5;
                 u =  p.x / absY;
                 v =  p.z / absY;
             }
