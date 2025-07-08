@@ -79,8 +79,8 @@ void ChunkManager::createTempTerrain(sf::VertexArray& vertices, int gridSize)
     int totalCells = gridSize * gridSize;
     vertices.setPrimitiveType(sf::Quads);
     vertices.resize(6 * gridSize * gridSize * 4);
-    std::vector<int> faces = {0,4,5,3,1,2};
-  //  std::vector<int> faces = {0,1,2,3,4,5};
+  //  std::vector<int> faces = {0,4,5,3,1,2};
+    std::vector<int> faces = {0,1,2,3,4,5};
 
     for (auto& face : faces) {
         std::vector<sf::Color> colors = worldGen.get()->createChunk(face, gridSize, world);
@@ -105,15 +105,18 @@ void ChunkManager::createTempTerrain(sf::VertexArray& vertices, int gridSize)
                     vertices[quadIndex + k].position = corners[k];
                     vertices[quadIndex + k].color = colors[j * gridSize + i];
                     vertices[quadIndex + k].texCoords = sf::Vector2f(face, 0);
+                    
                 }
+                int chunkX = i / conf::chunkSize;
+                int chunkY = j / conf::chunkSize;
+                auto chunk = getChunk(chunkX,chunkY,face);
+                int localX = i % conf::chunkSize;
+                int localY = j % conf::chunkSize;
+                auto cell = chunk->at(localX, localY);
+                cell->color = colors[j * gridSize + i];
+
 
             }
         }
     }
-//     for (const auto& [key, entry] : grid) {
-//     auto [face, x, y] = key;
-
-//     std::cout << "Chunk at face=" << face << ", x=" << x << ", y=" << y << std::endl;
-
-// }
 }
