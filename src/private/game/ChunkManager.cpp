@@ -105,7 +105,16 @@ void ChunkManager::createTempTerrain(sf::VertexArray& vertices, int gridSize)
                     vertices[quadIndex + k].position = corners[k];
                     vertices[quadIndex + k].color = colors[j * gridSize + i];
                     vertices[quadIndex + k].texCoords = sf::Vector2f(face, 0);
+                    
                 }
+                int chunkX = i / conf::chunkSize;
+                int chunkY = j / conf::chunkSize;
+                auto chunk = getChunk(chunkX,chunkY,face);
+                int localX = i % conf::chunkSize;
+                int localY = j % conf::chunkSize;
+                auto cell = chunk->at(localX, localY);
+                cell->color = colors[j * gridSize + i];
+
 
             }
         }

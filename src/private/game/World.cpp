@@ -188,6 +188,8 @@ void World::Init()
 
     std::cout << "world init fin" << std::endl;
 
+    /*
+    
     sf::Color faceColors[6] = {
         sf::Color::Red,    // face 0
         sf::Color::Green,  // face 1
@@ -215,6 +217,7 @@ void World::Init()
             }
         }
     }
+        */
 }
 
 Cell *World::globalat(int x, int y)
@@ -439,34 +442,6 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
     if (isOverWorld(start) && isOverWorld(end))
     {
         std::cout << "Selecting tiles from " << start.x << "," << start.y << " to " << end.x << "," << end.y << std::endl;
-        /*
-        math::Ray ray = math::screenToRayDirection(
-            start,
-            center,
-            zoom,
-            rotationX,
-            rotationY,
-            conf::distance,
-            conf::worldRadius,
-            getSliderValues("radius"),
-            debug
-        );
-
-        std::optional<math::Vec3> intersection = math::intersectSphere(ray.origin, ray.direction, conf::worldRadius + getSliderValues("radius"),debug);
-        if (!intersection.has_value())
-        {
-            // No intersection — mouse is outside sphere
-            return;
-        }
-        math::Vec3 hit = intersection.value();
-        std::cout << "Hit: " << hit.x << ", " << hit.y << ", " << hit.z << std::endl;
-        math::Vec3 rotated = math::rotateY(math::rotateX(hit, rotationX), rotationY);
-
-        float scale = conf::distance / (conf::distance + rotated.z);
-        screenPos = center + sf::Vector2f(rotated.x, -rotated.y) * scale;
-        screenPos = center + (screenPos - center) * zoom;
-        */
-
 
        // math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize,debug);
         auto coord = math::screenToCubeCoord(start, center, zoom, rotationX,rotationY,conf::distance, projectedRadius/*conf::worldRadius+getSliderValues("radius")*/, conf::worldSize, debug);
