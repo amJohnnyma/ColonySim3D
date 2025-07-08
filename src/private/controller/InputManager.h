@@ -23,7 +23,7 @@ private:
     float zoomFactor = 1.1f;
     sf::View view;
     World* world;
-    bool dragging = false;
+    bool rmbDragging = false;
     sf::Vector2i lastMousePos;
     float zoom = 5.f;
     float rotationX = 0.f, rotationY = 0.f;

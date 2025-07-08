@@ -17,19 +17,21 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         keyStates[event.key.code] = false;
         keysPressedOnce.erase(event.key.code);
     }
-    // Start dragging
+
+
+        // Start dragging
     if (event.type == sf::Event::MouseButtonPressed &&
-        event.mouseButton.button == sf::Mouse::Left)
+        event.mouseButton.button == sf::Mouse::Right)
     {
-        dragging = true;
+        rmbDragging = true;
         lastMousePos = sf::Mouse::getPosition(window);
     }
 
     // Stop dragging
     if (event.type == sf::Event::MouseButtonReleased &&
-        event.mouseButton.button == sf::Mouse::Left)
+        event.mouseButton.button == sf::Mouse::Right)
     {
-        dragging = false;
+        rmbDragging = false;
     }
 
     // Handle zooming
@@ -43,8 +45,10 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         zoom = std::clamp(zoom, 3.f, 10.f);
     }
 
-    // If dragging, update rotation based on horizontal mouse movement
-    if (dragging && !uiManager->isCheckboxChecked("selectMode"))
+
+
+        // If dragging, update rotation based on horizontal mouse movement
+    if (rmbDragging)
     {
         sf::Vector2i currentMousePos = sf::Mouse::getPosition(window);
         int dx = currentMousePos.x - lastMousePos.x;
@@ -62,6 +66,10 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
 
         lastMousePos = currentMousePos;
     }
+
+
+
+
 
     if (uiManager->isCheckboxChecked("selectMode"))
     {
