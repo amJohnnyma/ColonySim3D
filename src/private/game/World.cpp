@@ -12,7 +12,7 @@ void World::Init()
 {
     center = {conf::window_size.x / 2, conf::window_size.y / 2};
     std::cout << "Creating shader" << std::endl;
-    if (!terrainShader.loadFromFile("terrain.vert", "terrain.frag"))
+    if (!terrainShader.loadFromFile("src/shaders/world/terrain.vert", "src/shaders/world/terrain.frag"))
     {
         std::cerr << "Failed to load shaders\n";
     }
@@ -33,7 +33,7 @@ void World::Init()
     }
 
     std::cout << "Creating billboard shader" << std::endl;
-    if (!billBoardShader.loadFromFile("billboard.vert", "billboard.frag"))
+    if (!billBoardShader.loadFromFile("src/shaders/entities/billboard.vert", "src/shaders/entities/billboard.frag"))
     {
         std::cerr << "Failed to load billboard shaders\n";
     }
