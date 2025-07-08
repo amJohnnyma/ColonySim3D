@@ -415,6 +415,7 @@ void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderW
 {
     this->zoom = zoom;
     this->rotationX = rotationX;
+    std::cout << "RotX " << std::to_string(rotationX) << std::endl;
   //  this->rotationY = rotationY;
 }
 
@@ -428,6 +429,7 @@ void World::updateSliderValues(const std::string &name, int value)
     else if(name == "originZ")
     {
         this->debug.origin = value;
+     //   std::cout << value << "\n";
     }
 }
 
@@ -440,6 +442,7 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
     if (isOverWorld(start) && isOverWorld(end))
     {
         std::cout << "Selecting tiles from " << start.x << "," << start.y << " to " << end.x << "," << end.y << std::endl;
+        /*
         math::Ray ray = math::screenToRayDirection(
             start,
             center,
@@ -458,25 +461,23 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
             // No intersection — mouse is outside sphere
             return;
         }
-        if (intersection.has_value()) {
-            math::Vec3 hit = intersection.value();
-            std::cout << "Hit: " << hit.x << ", " << hit.y << ", " << hit.z << std::endl;
-            math::Vec3 rotated = math::rotateY(math::rotateX(hit, rotationX), rotationY);
+        math::Vec3 hit = intersection.value();
+        std::cout << "Hit: " << hit.x << ", " << hit.y << ", " << hit.z << std::endl;
+        math::Vec3 rotated = math::rotateY(math::rotateX(hit, rotationX), rotationY);
 
-            float scale = conf::distance / (conf::distance + rotated.z);
-            screenPos = center + sf::Vector2f(rotated.x, -rotated.y) * scale;
-            screenPos = center + (screenPos - center) * zoom;
+        float scale = conf::distance / (conf::distance + rotated.z);
+        screenPos = center + sf::Vector2f(rotated.x, -rotated.y) * scale;
+        screenPos = center + (screenPos - center) * zoom;
+        */
 
 
-        }
-
-        math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize,debug);
-
+       // math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize,debug);
+        auto coord = math::screenToCubeCoord(start, center, zoom, rotationX,rotationY,conf::distance, conf::worldRadius+getSliderValues("radius"), conf::worldSize, debug);
         std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
 
         float step = 2.f / float(conf::worldSize);
         Cell *cell = cellat(coord.face, coord.i, coord.j);
-        int quadIndex = (cell->face * conf::worldSize * conf::worldSize + cell->x * conf::worldSize + cell->y) * 4;
+        int quadIndex = (coord.face * conf::worldSize * conf::worldSize + coord.j * conf::worldSize + coord.i) * 4;
         //  std::cout << "Index: " << quadIndex << std::endl;
         if (quadIndex + 3 < vertices.getVertexCount())
         {
@@ -513,6 +514,58 @@ bool World::isOverWorld(sf::Vector2i mousePos)
     bool isInside = distSquared <= projectedRadius * projectedRadius;
 
     return isInside;
+}
+
+void World::hoverEffect(sf::Vector2i mousePos)
+{
+    if(!isOverWorld(mousePos))
+    {
+        for (auto& tile : lastHoverTiles) {
+            resetCellColor(tile);
+        }
+        lastHoverTiles.clear();
+        curHoverTiles.clear();
+        return;
+    }
+    auto coord = math::screenToCubeCoord(mousePos, center, zoom, rotationX,rotationY,conf::distance, conf::worldRadius+getSliderValues("radius"), conf::worldSize, debug);
+    //std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
+
+    curHoverTiles.clear();
+    curHoverTiles.push_back(coord);
+
+    // Compare with previous — if different, reset old
+    if (curHoverTiles != lastHoverTiles) {
+        for (auto& tile : lastHoverTiles)
+            resetCellColor(tile);
+
+        for (auto& tile : curHoverTiles)
+            highlightCell(tile, sf::Color::Magenta);
+
+        lastHoverTiles = curHoverTiles;
+    }
+}
+
+void World::highlightCell(const math::GridCoord& coord, sf::Color color)
+{
+    int quadIndex = (coord.face * conf::worldSize * conf::worldSize + coord.j * conf::worldSize + coord.i) * 4;
+    if (quadIndex + 3 >= vertices.getVertexCount()) return;
+
+    for (int k = 0; k < 4; ++k)
+        vertices[quadIndex + k].color = color;
+}
+
+void World::resetCellColor(const math::GridCoord& coord)
+{
+    int quadIndex = (coord.face * conf::worldSize * conf::worldSize + coord.j * conf::worldSize + coord.i) * 4;
+    if (quadIndex + 3 >= vertices.getVertexCount()) return;
+
+    Cell* cell = cellat(coord.face, coord.i, coord.j);
+    if (!cell) return;
+
+    sf::Color original = cell->color; // or regenerate if needed
+
+    for (int k = 0; k < 4; ++k)
+        vertices[quadIndex + k].color = original;
 }
 
 // helper render

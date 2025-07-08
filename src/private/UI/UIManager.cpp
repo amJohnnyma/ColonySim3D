@@ -36,9 +36,9 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
 
 
     //for testing purposes
-    Slider<int, 1>* A = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "A", -100, 100);
+    Slider<int, 1>* A = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "A", -100, 100, -1);
     addSlider("A",A);
-    Slider<int, 1>* originZ = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "originZ", -500, 500);
+    Slider<int, 1>* originZ = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "originZ", -500, 500, 256);
     addSlider("originZ",originZ);
 }
 

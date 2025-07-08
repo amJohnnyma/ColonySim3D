@@ -54,16 +54,17 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         // Apply rotation deltas as incremental transforms
         rotationX -= dy * rotationSpeed; // inverted for "grab" feel
         rotationY -= dx * rotationSpeed;
-        if (rotationY > 2 * M_PI)
-            rotationY -= 2 * M_PI;
-        if (rotationY < 0)
-            rotationY += 2 * M_PI;
+        if (std::abs(rotationX) > 2 * M_PI)
+            rotationX = std::abs(rotationX)- 2 * M_PI;
+        if (rotationX < 0)
+            rotationX += 2 * M_PI;
 
         lastMousePos = currentMousePos;
     }
 
     if(uiManager->isCheckboxChecked("selectMode"))
     {
+        world->hoverEffect(sf::Mouse::getPosition(window));
         if(event.type == sf::Event::MouseButtonPressed &&
            event.mouseButton.button == sf::Mouse::Left)
         {

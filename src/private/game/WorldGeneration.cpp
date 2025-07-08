@@ -95,6 +95,7 @@ std::pair<std::unique_ptr<Cell>, sf::Color> WorldGeneration::createCell(int x, i
     cell->y = y;
     cell->face = face;
     cell->data = std::move(cd);
+    cell->color = cellBiome.color;
 
     return {std::move(cell), biomec};
 }

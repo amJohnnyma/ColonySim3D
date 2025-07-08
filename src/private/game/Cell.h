@@ -11,6 +11,8 @@ class Cell {
     public:
         int x, y, face;
         CellData data;
+        sf::Color color;
+    
 
 
     public:

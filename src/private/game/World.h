@@ -41,6 +41,9 @@ private:
     std::unordered_map<std::string, bool> worldCBValues; // Checkbox values for world state
     std::unordered_map<std::string, int> worldSliderValues; // Checkbox values for world state
 
+    std::vector<math::GridCoord> lastHoverTiles;
+    std::vector<math::GridCoord> curHoverTiles;
+
     //temp
     sf::CircleShape dot;
     sf::Vector2f screenPos;
@@ -49,6 +52,7 @@ private:
 public:
 private:
     void drawGrid(sf::RenderWindow &window);
+    void resetCellColor(const math::GridCoord &coord);
     void drawTerrain(sf::RenderWindow &window);
     void drawEntities(sf::RenderWindow &window);
 
@@ -97,6 +101,8 @@ public: //input stuff from UI and inputManager
     }
     void selectTiles(sf::Vector2i start, sf::Vector2i end);
     bool isOverWorld(sf::Vector2i pos);
+    void hoverEffect(sf::Vector2i mousePos);
+    void highlightCell(const math::GridCoord &coord, sf::Color color);
 };
 
 #endif
