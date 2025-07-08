@@ -40,7 +40,7 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         else
             zoom /= 1.1f;
 
-        zoom = std::clamp(zoom, 0.1f, 10.f);
+        zoom = std::clamp(zoom, 3.f, 10.f);
     }
 
     // If dragging, update rotation based on horizontal mouse movement
