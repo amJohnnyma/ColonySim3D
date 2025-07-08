@@ -93,11 +93,11 @@ namespace math
         int i;
         int j;
     };
-    inline bool operator==(const GridCoord& a, const GridCoord& b)
+    inline bool operator==(const GridCoord &a, const GridCoord &b)
     {
         return a.face == b.face && a.i == b.i && a.j == b.j;
     }
-    inline bool operator!=(const GridCoord& a, const GridCoord& b)
+    inline bool operator!=(const GridCoord &a, const GridCoord &b)
     {
         return !(a == b);
     }
@@ -225,105 +225,129 @@ namespace math
         int gridSize,
         DebugVariables debug)
     {
-        // screen to NDC → Screen space
+        // screen to NDC -> Screen space
         sf::Vector2f mouseF(static_cast<float>(mouse.x), static_cast<float>(mouse.y));
         sf::Vector2f unzoomed = screenCenter + (mouseF - screenCenter) / zoom;
 
+        // if we need to adjust the x and y we have vars
         sf::Vector2f delta = unzoomed - screenCenter;
         float adjustedDeltaY = delta.y;
         float adjustedDeltaX = -delta.x;
 
-        // If we're upside-down (rotX ~ 90° to 270°), flip Y
         // Compute the world-space camera direction
         Vec3 viewDir(0, 0, -1);
         Vec3 rotatedViewDir = rotateX(rotateY(viewDir, -rotY), -rotX);
 
-        // Flip Y if we're looking from above or below
-        // float yThreshold = 0.9f; // you can tweak this
-
-        // if (rotatedViewDir.y > yThreshold || rotatedViewDir.y < -yThreshold) {
-        //     adjustedDeltaY = -adjustedDeltaY;
-        // }
-
+        // Create the direction (into the 'sphere')
         Vec3 dir(adjustedDeltaX, adjustedDeltaY, distance);
         dir = dir.normalized();
+        // we dont have rotated.z so emulate one
         float frontZ = -radius;
+        // direction of the ray should have the inverse rotations of the raydir
         Vec3 rayDir = rotateX(rotateY(dir, -rotY), -rotX);
-        Vec3 rayOrigin(0,0,0);
+        // ray start from centre of the 'sphere'
+        Vec3 rayOrigin(0, 0, 0);
+        // The ray is defined as: R(t) = rayOrigin + t * rayDir
+        // The sphere equation is: |P|^2 = radius^2, where P is a point on the sphere
+
+        // quad coeff for ray-sphere intersection
+
+        // A = dot product of the ray direction with itself.
+        // Since rayDir is normalized, A should be 1.
         float A = Vec3::dot(rayDir, rayDir); // = 1
+        // B = 2 times the dot product of ray origin and ray direction.
+        // If ray origin is at (0,0,0), B will be zero.
         float B = 2.0f * Vec3::dot(rayOrigin, rayDir); // = 0 if origin is 0
+        // C = squared length of ray origin minus squared radius of the sphere.
+        // Represents how far ray origin is from sphere surface.
         float C = Vec3::dot(rayOrigin, rayOrigin) - radius * radius;
 
+        // If discriminant is negative, ray misses the sphere (no real roots)
         float discriminant = B * B - 4 * A * C;
         if (discriminant < 0)
             return GridCoord(); // no intersection
 
+        // Otherwise, compute the smallest positive root t of the quadratic:
         float t = (-B - std::sqrt(discriminant)) / (2.0f * A);
 
+        // Calculate the intersection point on the sphere:
         Vec3 hitPoint = rayOrigin + rayDir * t;
+        // Normalize hitPoint to get a point on the unit sphere (direction vector)
         Vec3 p = hitPoint.normalized();
 
+        // Project the normalized point p on the sphere to one of the 6 cube faces:
 
-        //Project to cube face
+        // Calculate absolute values of each component to determine dominant axis
         float absX = std::abs(p.x);
         float absY = std::abs(p.y);
         float absZ = std::abs(p.z);
 
-        int face;
-        float u, v;
+        int face;   // Cube face index [0..5]
+        float u, v; // 2D coordinates on the selected cube face in range [-1, 1]
 
+        // Determine which cube face the point projects onto:
+        // The face is chosen by the largest absolute component (dominant axis)
         if (absZ >= absX && absZ >= absY)
         {
+            // Z-axis is dominant
             if (p.z > 0)
             {
-                face = 0;
-                u = p.x / absZ;
-                v = p.y / absZ;
+                face = 0;       // Front face
+                u = p.x / absZ; // Map x coordinate scaled by dominant axis
+                v = p.y / absZ; // Map y coordinate scaled by dominant axis
             }
             else
             {
-                face = 1;
-                u = -p.x / absZ;
+                face = 1;        // Back face
+                u = -p.x / absZ; // Invert x to mirror correctly
                 v = p.y / absZ;
             }
         }
         else if (absX >= absY)
         {
+            // X-axis is dominant
             if (p.x > 0)
             {
-                face = 3;
-                u = -p.z / absX;
+                face = 3;        // Right face
+                u = -p.z / absX; // Map z coordinate inverted
                 v = p.y / absX;
             }
             else
             {
-                face = 2;
+                face = 2; // Left face
                 u = p.z / absX;
                 v = p.y / absX;
             }
         }
         else
         {
+            // Y-axis is dominant
             if (p.y > 0)
             {
-                face = 4;
+                face = 4; // Top face
                 u = p.x / absY;
-                v = -p.z / absY;
+                v = -p.z / absY; // Inverted z coordinate for correct orientation
             }
             else
             {
-                face = 5;
+                face = 5; // Bottom face
                 u = p.x / absY;
                 v = p.z / absY;
             }
         }
 
-        //  Map to grid
+        // At this point, u and v represent coordinates on the cube face in range [-1, 1].
+
+        // Map these normalized face coordinates to discrete grid indices:
+
+        // Calculate the size of one grid cell in normalized face space
         float step = 2.f / float(gridSize);
-      //  int i = std::clamp(int((u + 1.f + step * 0.5f) / step), 0, gridSize - 1);
-       // int j = std::clamp(int((v + 1.f + step * 0.5f) / step), 0, gridSize - 1);
-int i = std::clamp(int(std::floor((u + 1.f) / step)), 0, gridSize - 1);
-int j = std::clamp(int(std::floor((v + 1.f) / step)), 0, gridSize - 1);
+
+        // Convert continuous u, v coordinates to integer grid indices
+        // floor maps coordinate to the lower grid cell
+        // Clamp to ensure indices stay within valid [0, gridSize-1] bounds
+        int i = std::clamp(int(std::floor((u + 1.f) / step)), 0, gridSize - 1);
+        int j = std::clamp(int(std::floor((v + 1.f) / step)), 0, gridSize - 1);
 
         return GridCoord{face, i, j};
     }
