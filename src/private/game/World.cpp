@@ -573,6 +573,7 @@ void World::drawTerrain(sf::RenderWindow &window)
     terrainShader.setUniform("rotY", rotationY);
 
     terrainShader.setUniform("zoom", zoom);
+    std::cout << "Zoom: " << std::to_string(zoom) << "\n";
 
     if (vertices.getVertexCount() == 0)
         std::cout << "No vertices to draw!\n";
