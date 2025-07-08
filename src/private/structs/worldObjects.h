@@ -53,6 +53,7 @@ struct CellData
     double difficulty = 0;
     pheromone p; 
     BiomeData biomeinfo;
+    
 
         // Move-only
     CellData() = default;
