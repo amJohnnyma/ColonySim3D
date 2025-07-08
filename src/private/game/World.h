@@ -45,7 +45,6 @@ private:
     std::vector<math::GridCoord> curHoverTiles;
 
     //temp
-    sf::CircleShape dot;
     sf::Vector2f screenPos;
     math::DebugVariables debug;
 

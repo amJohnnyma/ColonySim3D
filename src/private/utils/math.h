@@ -231,7 +231,7 @@ namespace math
 
         sf::Vector2f delta = unzoomed - screenCenter;
         float adjustedDeltaY = delta.y;
-        float adjustedDeltaX = delta.x;
+        float adjustedDeltaX = -delta.x;
 
         // If we're upside-down (rotX ~ 90° to 270°), flip Y
         // Compute the world-space camera direction
@@ -239,11 +239,11 @@ namespace math
         Vec3 rotatedViewDir = rotateX(rotateY(viewDir, -rotY), -rotX);
 
         // Flip Y if we're looking from above or below
-        float yThreshold = 0.9f; // you can tweak this
+        // float yThreshold = 0.9f; // you can tweak this
 
-        if (rotatedViewDir.y > yThreshold || rotatedViewDir.y < -yThreshold) {
-            adjustedDeltaY = -adjustedDeltaY;
-        }
+        // if (rotatedViewDir.y > yThreshold || rotatedViewDir.y < -yThreshold) {
+        //     adjustedDeltaY = -adjustedDeltaY;
+        // }
 
         Vec3 dir(adjustedDeltaX, adjustedDeltaY, distance);
         dir = dir.normalized();

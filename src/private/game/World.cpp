@@ -399,14 +399,6 @@ void World::render(sf::RenderWindow &window)
         outline.setFillColor(sf::Color::Transparent);
         window.draw(outline);
 
-
-        // Draw a small circle at screenPos
-        sf::CircleShape dot(40.f);
-        dot.setOrigin(40.f, 40.f);
-        dot.setFillColor(sf::Color::Red);
-        dot.setPosition(screenPos);
-        window.draw(dot);
-
         
     }
 }
@@ -414,9 +406,14 @@ void World::render(sf::RenderWindow &window)
 void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderWindow &window)
 {
     this->zoom = zoom;
+    if (std::abs(rotationX) > 2 * M_PI)
+        rotationX = std::abs(rotationX)- 2 * M_PI;
+    if (rotationX < 0)
+        rotationX += 2 * M_PI;
     this->rotationX = rotationX;
-    std::cout << "RotX " << std::to_string(rotationX) << std::endl;
-  //  this->rotationY = rotationY;
+
+ //   std::cout << "RotX " << std::to_string(rotationX) << std::endl;
+    this->rotationY = rotationY;
 }
 
 void World::updateSliderValues(const std::string &name, int value)
@@ -472,7 +469,7 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
 
 
        // math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize,debug);
-        auto coord = math::screenToCubeCoord(start, center, zoom, rotationX,rotationY,conf::distance, conf::worldRadius+getSliderValues("radius"), conf::worldSize, debug);
+        auto coord = math::screenToCubeCoord(start, center, zoom, rotationX,rotationY,conf::distance, projectedRadius/*conf::worldRadius+getSliderValues("radius")*/, conf::worldSize, debug);
         std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
 
         float step = 2.f / float(conf::worldSize);
@@ -527,7 +524,7 @@ void World::hoverEffect(sf::Vector2i mousePos)
         curHoverTiles.clear();
         return;
     }
-    auto coord = math::screenToCubeCoord(mousePos, center, zoom, rotationX,rotationY,conf::distance, conf::worldRadius+getSliderValues("radius"), conf::worldSize, debug);
+    auto coord = math::screenToCubeCoord(mousePos, center, zoom, rotationX,rotationY,conf::distance, projectedRadius/*conf::worldRadius+getSliderValues("radius")*/, conf::worldSize, debug);
     //std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
 
     curHoverTiles.clear();

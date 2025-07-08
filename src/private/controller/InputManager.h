@@ -26,7 +26,7 @@ private:
     bool dragging = false;
     sf::Vector2i lastMousePos;
     float zoom = 1.f;
-    float rotationX, rotationY;
+    float rotationX = 0.f, rotationY = 0.f;
     float rotationSpeed = 0.0005f;
     sf::Vector2i currentMousePos;
     UIManager* uiManager;

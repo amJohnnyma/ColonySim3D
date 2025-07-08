@@ -53,11 +53,12 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         // Compose the rotation with the current rotation
         // Apply rotation deltas as incremental transforms
         rotationX -= dy * rotationSpeed; // inverted for "grab" feel
-        rotationY -= dx * rotationSpeed;
-        if (std::abs(rotationX) > 2 * M_PI)
-            rotationX = std::abs(rotationX)- 2 * M_PI;
-        if (rotationX < 0)
-            rotationX += 2 * M_PI;
+        bool upsideDown = std::cos(rotationX) < 0;
+float effectiveDY = upsideDown ? -dx : dx;
+rotationY -= effectiveDY * rotationSpeed;
+
+       rotationX = std::fmod(rotationX + 2 * M_PI, 2 * M_PI);
+rotationY = std::fmod(rotationY + 2 * M_PI, 2 * M_PI);
 
         lastMousePos = currentMousePos;
     }
