@@ -392,11 +392,11 @@ void World::render(sf::RenderWindow &window)
     {
         float frontZ = -conf::worldRadius - getSliderValues("radius");
         float scale = conf::distance / (conf::distance + frontZ);
-        projectedRadius = (conf::worldRadius)*zoom * scale * 0.65;
+        projectedRadius = (conf::worldRadius)*zoom * scale * 0.6;
 
         outline = sf::CircleShape(projectedRadius);
         outline.setOrigin(projectedRadius, projectedRadius);
-        outline.setPosition(sf::Vector2f(center.x, center.y - (conf::window_size.y * 0.03)));
+        outline.setPosition(sf::Vector2f(center.x, center.y - (conf::window_size.y * 0.03f)));
         outline.setOutlineColor(sf::Color::Red);
         outline.setOutlineThickness(1.f);
         outline.setFillColor(sf::Color::Transparent);

@@ -27,7 +27,7 @@ private:
     sf::Vector2i lastMousePos;
     float zoom = 5.f;
     float rotationX = 0.f, rotationY = 0.f;
-    float rotationSpeed = 0.005f;
+    float rotationSpeed = 0.001f;
     sf::Vector2i currentMousePos;
     UIManager* uiManager;
 

@@ -6,7 +6,10 @@ Game* Game::instance = nullptr;
 void Game::run()
 {
     using clock = std::chrono::steady_clock;
-    constexpr std::chrono::duration<double, std::milli> targetFrameTime(16.667); // ~60 FPS = 16.667
+    constexpr std::chrono::duration<double, std::milli> targetFrameTime(16.667); // ~60 FPS
+
+    int frameCount = 0;
+    auto fpsTimerStart = clock::now();
 
     while (wind->wndw->isOpen())
     {
@@ -15,38 +18,42 @@ void Game::run()
         // Handle game state
         switch (currentState)
         {
-            case State::IDLE:
-            //std::cout << "Idle" << std::endl;
-                idleState();  
-                break;          
-            case State::PAUSED:
-            //std::cout << "paused" << std::endl;
-                pausedState();
-                break;
-            case State::RUNNING:
-           // std::cout << "running" << std::endl;
-                runningState();
-                break;
-            case State::STOPPED:
-          //  std::cout << "stopped" << std::endl;
-                stoppedState();
-                break;
+            case State::IDLE:    idleState();    break;
+            case State::PAUSED:  pausedState();  break;
+            case State::RUNNING: runningState(); break;
+            case State::STOPPED: stoppedState(); break;
             default:
                 std::cerr << "Unknown state" << std::endl;
                 wind->wndw->close();
                 break;
         }
 
-        // Calculate how long frame took
         auto frameEnd = clock::now();
         auto elapsed = frameEnd - frameStart;
 
-        // Sleep to limit frame rate, if frame finished early
+        // Sleep to maintain target frame rate
         if (elapsed < targetFrameTime)
         {
             std::this_thread::sleep_for(targetFrameTime - elapsed);
+            frameEnd = clock::now(); // Update frameEnd after sleep
         }
-             //   std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Prevents CPU spinning
+
+        frameCount++;
+
+        auto fpsTimerEnd = clock::now();
+        auto fpsElapsed = fpsTimerEnd - fpsTimerStart;
+
+        // Print FPS every 1 second
+        if (fpsElapsed >= std::chrono::seconds(1))
+        {
+            double seconds = std::chrono::duration<double>(fpsElapsed).count();
+            double fps = frameCount / seconds;
+            std::cout << "FPS: " << fps << std::endl;
+
+            // Reset counters
+            fpsTimerStart = fpsTimerEnd;
+            frameCount = 0;
+        }
     }
 }
 

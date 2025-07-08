@@ -20,7 +20,7 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     CheckBox *showFlatMapCB = new CheckBox(mainGUI->getGUIColor(), "ShowFlatMap", sf::Color(255, 255, 255));
     //  CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
     //   text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
-    Slider<int, 1>* radius = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "Radius", 10, 900);
+    Slider<int, 1>* radius = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "Radius", 0, 900);
     Slider<int, 1>* flatSize = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "FlatMapSize", 10, 900);
 
     // guis.push_back({mainGUI, "main"});

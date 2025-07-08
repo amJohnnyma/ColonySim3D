@@ -42,7 +42,7 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         else
             zoom /= 1.1f;
 
-        zoom = std::clamp(zoom, 3.f, 10.f);
+        zoom = std::clamp(zoom, 1.f, 10.f);
     }
 
 
@@ -61,8 +61,8 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         float effectiveDY = upsideDown ? -dx : dx;
         rotationY -= effectiveDY * rotationSpeed;
 
-        rotationX = std::fmod(rotationX + 2 * M_PI, 2 * M_PI);
-        rotationY = std::fmod(rotationY + 2 * M_PI, 2 * M_PI);
+        rotationX = std::fmod(rotationX + 2 * M_PI,2 * M_PI);
+        rotationY = std::fmod(rotationY + 2 * M_PI,2 * M_PI);
 
         lastMousePos = currentMousePos;
     }

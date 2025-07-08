@@ -7,8 +7,8 @@ namespace conf
     double maxPheromone = 20;
     const sf::Vector2f window_size = {1000, 1000};
     const sf::Vector2f window_size_f = static_cast<sf::Vector2f>(window_size);
-    int chunkSize = 4;
-    int worldSize = 16; // per square face
+    int worldSize = 512; // per square face
+    int chunkSize = worldSize / 4;
     /*
     16,16 = 1x1
     32,32 = 2x2
@@ -50,7 +50,7 @@ namespace conf
     double locationSpawnChance = 0.001; // 0 - 1
     int numberOfTeams = 16;             // >0
     double chosenTeam;                  // 0 - 1 (chosen * num teams = team)
-    float worldRadius = window_size.y / 10.f;
+    float worldRadius = 250;
     const std::map<std::pair<int, int>, int> faceLookup = { // for when looking up x,y coords
         {{0, 0}, 0},
         {{0, 1}, 4},
@@ -64,5 +64,5 @@ namespace conf
         {{3, 0}, 2},
         {{3, 1}, 4},
         {{3, 2}, 5}};
-    float distance = 256.f;       
+    float distance = worldRadius * 2.f;       
 }
