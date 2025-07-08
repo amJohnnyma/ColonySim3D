@@ -6,7 +6,10 @@
 
 namespace math
 {
-
+    struct DebugVariables {
+        float A = 0.f;
+        float origin = 0.f;
+    };
     struct Vec3
     {
         float x, y, z;
@@ -104,7 +107,7 @@ namespace math
         return {c * v.x + s * v.z, v.y, -s * v.x + c * v.z};
     }
 
-    inline Ray screenToRayDirection(const sf::Vector2i &screen, const sf::Vector2f &center, float zoom, float rotationX, float rotationY, float distance, float worldRadius, float sliderRadius)
+    inline Ray screenToRayDirection(const sf::Vector2i &screen, const sf::Vector2f &center, float zoom, float rotationX, float rotationY, float distance, float worldRadius, float sliderRadius, DebugVariables debug)
     {
         sf::Vector2f mouseScreen(static_cast<float>(screen.x), static_cast<float>(screen.y));
         sf::Vector2f unzoomed = center + (mouseScreen - center) / zoom;
@@ -117,16 +120,16 @@ namespace math
         viewDir = viewDir.normalized();
 
         Vec3 dir = rotateX(rotateY(viewDir, -rotationY), -rotationX);
-        Vec3 origin(0.f, 0.f, 0.f);
+        Vec3 origin(0, 0, debug.origin);
 
         return {origin, dir};
     }
 
-    inline std::optional<Vec3> intersectSphere(const Vec3 &origin, const Vec3 &dir, float radius)
+    inline std::optional<Vec3> intersectSphere(const Vec3 &origin, const Vec3 &dir, float radius, DebugVariables debug)
     {
-        float A = 1.0f;
-        float B = 2.0f * (origin.x * dir.x + origin.y * dir.y + origin.z * dir.z);
-        float C = origin.x * origin.x + origin.y * origin.y + origin.z * origin.z - radius * radius;
+        float A = debug.A;
+        float B = 2.0f * Vec3::dot(origin,dir);
+        float C = Vec3::dot(origin,origin) - radius*radius;
 
         float discriminant = B * B - 4 * A * C;
         if (discriminant < 0)
@@ -139,7 +142,7 @@ namespace math
             origin.z + t * dir.z);
     }
 
-    inline GridCoord pointToCubeGrid(const Vec3 &hitPoint, int worldSize)
+    inline GridCoord pointToCubeGrid(const Vec3 &hitPoint, int worldSize, DebugVariables debug)
     {
         Vec3 p = hitPoint.normalized();
 

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Chunk.h"
 #include "ChunkManager.h"
+#include "../utils/math.h"
 // #include "../../controller/InputManager.h"
 
 class InputManager;
@@ -40,6 +41,11 @@ private:
     std::unordered_map<std::string, bool> worldCBValues; // Checkbox values for world state
     std::unordered_map<std::string, int> worldSliderValues; // Checkbox values for world state
 
+    //temp
+    sf::CircleShape dot;
+    sf::Vector2f screenPos;
+    math::DebugVariables debug;
+
 public:
 private:
     void drawGrid(sf::RenderWindow &window);
@@ -64,12 +70,10 @@ public:
 public: //input stuff from UI and inputManager
     void updateCBValues(const std::string &name, bool value)
     {
-        worldCBValues[name] = value;
+        worldCBValues[name] = value;        
     }
-    void updateSliderValues(const std::string &name, int value)
-    {
-        worldSliderValues[name] = value;
-    }
+    void updateSliderValues(const std::string &name, int value);
+
     bool getCBValues(std::string name)
     {
         if (worldCBValues.find(name) != worldCBValues.end())

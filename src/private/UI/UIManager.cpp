@@ -33,6 +33,13 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     addSlider("radius", radius);
     addSlider("flatSize", flatSize);
     // addCheckBox("selectMode", selectModeCB);
+
+
+    //for testing purposes
+    Slider<int, 1>* A = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "A", -100, 100);
+    addSlider("A",A);
+    Slider<int, 1>* originZ = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "originZ", -500, 500);
+    addSlider("originZ",originZ);
 }
 
 UIManager::~UIManager()

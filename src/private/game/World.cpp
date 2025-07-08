@@ -1,7 +1,6 @@
 #include "World.h"
 #include "GlobalVars.h"
 #include <SFML/OpenGL.hpp>
-#include "../utils/math.h"
 
 World::World(sf::RenderWindow &window)
 {
@@ -399,6 +398,16 @@ void World::render(sf::RenderWindow &window)
         outline.setOutlineThickness(1.f);
         outline.setFillColor(sf::Color::Transparent);
         window.draw(outline);
+
+
+        // Draw a small circle at screenPos
+        sf::CircleShape dot(40.f);
+        dot.setOrigin(40.f, 40.f);
+        dot.setFillColor(sf::Color::Red);
+        dot.setPosition(screenPos);
+        window.draw(dot);
+
+        
     }
 }
 
@@ -406,7 +415,20 @@ void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderW
 {
     this->zoom = zoom;
     this->rotationX = rotationX;
-    this->rotationY = rotationY;
+  //  this->rotationY = rotationY;
+}
+
+void World::updateSliderValues(const std::string &name, int value)
+{
+    worldSliderValues[name] = value;
+    if(name == "A")
+    {
+        this->debug.A = value;
+    }
+    else if(name == "originZ")
+    {
+        this->debug.origin = value;
+    }
 }
 
 void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
@@ -426,16 +448,29 @@ void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
             rotationY,
             conf::distance,
             conf::worldRadius,
-            getSliderValues("radius"));
+            getSliderValues("radius"),
+            debug
+        );
 
-        std::optional<math::Vec3> intersection = math::intersectSphere(ray.origin, ray.direction, conf::worldRadius);
+        std::optional<math::Vec3> intersection = math::intersectSphere(ray.origin, ray.direction, conf::worldRadius + getSliderValues("radius"),debug);
         if (!intersection.has_value())
         {
             // No intersection — mouse is outside sphere
             return;
         }
+        if (intersection.has_value()) {
+            math::Vec3 hit = intersection.value();
+            std::cout << "Hit: " << hit.x << ", " << hit.y << ", " << hit.z << std::endl;
+            math::Vec3 rotated = math::rotateY(math::rotateX(hit, rotationX), rotationY);
 
-        math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize);
+            float scale = conf::distance / (conf::distance + rotated.z);
+            screenPos = center + sf::Vector2f(rotated.x, -rotated.y) * scale;
+            screenPos = center + (screenPos - center) * zoom;
+
+
+        }
+
+        math::GridCoord coord = math::pointToCubeGrid(intersection.value(), conf::worldSize,debug);
 
         std::cout << "Selected face: " << coord.face << " i: " << coord.i << " j: " << coord.j << std::endl;
 
