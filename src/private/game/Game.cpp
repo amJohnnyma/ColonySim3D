@@ -56,6 +56,47 @@ void Game::run()
         }
     }
 }
+/* SPAM CONSOLE WITH FPS
+void Game::run()
+{
+    using clock = std::chrono::steady_clock;
+    constexpr std::chrono::duration<double, std::milli> targetFrameTime(16.667); // ~60 FPS
+
+    while (wind->wndw->isOpen())
+    {
+        auto frameStart = clock::now();
+
+        // Handle game state
+        switch (currentState)
+        {
+            case State::IDLE:    idleState();    break;
+            case State::PAUSED:  pausedState();  break;
+            case State::RUNNING: runningState(); break;
+            case State::STOPPED: stoppedState(); break;
+            default:
+                std::cerr << "Unknown state" << std::endl;
+                wind->wndw->close();
+                break;
+        }
+
+        auto frameEnd = clock::now();
+        auto elapsed = frameEnd - frameStart;
+
+        // Calculate FPS: FPS = 1 / frameDurationInSeconds
+        double frameDurationSec = std::chrono::duration<double>(elapsed).count();
+        if (frameDurationSec > 0)
+        {
+            double fps = 1.0 / frameDurationSec;
+            std::cout << "FPS: " << fps << std::endl;
+        }
+
+        if (elapsed < targetFrameTime)
+        {
+            std::this_thread::sleep_for(targetFrameTime - elapsed);
+        }
+    }
+}
+*/
 
 void Game::renderFrame() {
     wind->wndw->clear(sf::Color::Black);

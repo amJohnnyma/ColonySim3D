@@ -198,26 +198,32 @@ void World::Init()
         sf::Color::Cyan,   // face 4
         sf::Color::Magenta // face 5
     };
-
+*/
     for (int face = 0; face < 6; face++)
     {
         for (int i = 0; i < conf::worldSize; i++)
         {
             for (int j = 0; j < conf::worldSize; j++)
             {
-                int quadIndex = (face * conf::worldSize * conf::worldSize + j * conf::worldSize + i) * 4;
-                //  std::cout << "Index: " << quadIndex << std::endl;
-                if (quadIndex + 3 < vertices.getVertexCount())
-                {
-                    for (int k = 0; k < 4; ++k)
-                    {
-                        vertices[quadIndex + k].color = faceColors[face];
-                    }
-                }
+                math::GridCoord coord = {
+                    face,
+                    i,
+                    j
+                };
+                highlightCell(coord, sf::Color::Cyan);
+                // int quadIndex = (face * conf::worldSize * conf::worldSize + j * conf::worldSize + i) * 4;
+                // //  std::cout << "Index: " << quadIndex << std::endl;
+                // if (quadIndex + 3 < vertices.getVertexCount())
+                // {
+                //     for (int k = 0; k < 4; ++k)
+                //     {
+                //         vertices[quadIndex + k].color = faceColors[face];
+                //     }
+                // }
             }
         }
     }
-        */
+        
 }
 
 Cell *World::globalat(int x, int y)
