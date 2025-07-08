@@ -53,27 +53,27 @@ void InputManager::processEvent(const sf::Event &event, sf::RenderWindow &window
         // Compose the rotation with the current rotation
         // Apply rotation deltas as incremental transforms
         rotationX -= dy * rotationSpeed; // inverted for "grab" feel
-        bool upsideDown = std::cos(rotationX) < 0;
-float effectiveDY = upsideDown ? -dx : dx;
-rotationY -= effectiveDY * rotationSpeed;
+        bool upsideDown = std::sin(rotationX) > 0;
+        float effectiveDY = upsideDown ? -dx : dx;
+        rotationY -= effectiveDY * rotationSpeed;
 
-       rotationX = std::fmod(rotationX + 2 * M_PI, 2 * M_PI);
-rotationY = std::fmod(rotationY + 2 * M_PI, 2 * M_PI);
+        rotationX = std::fmod(rotationX + 2 * M_PI, 2 * M_PI);
+        rotationY = std::fmod(rotationY + 2 * M_PI, 2 * M_PI);
 
         lastMousePos = currentMousePos;
     }
 
-    if(uiManager->isCheckboxChecked("selectMode"))
+    if (uiManager->isCheckboxChecked("selectMode"))
     {
         world->hoverEffect(sf::Mouse::getPosition(window));
-        if(event.type == sf::Event::MouseButtonPressed &&
-           event.mouseButton.button == sf::Mouse::Left)
+        if (event.type == sf::Event::MouseButtonPressed &&
+            event.mouseButton.button == sf::Mouse::Left)
         {
             mouseStart = sf::Mouse::getPosition(window);
             selecting = true;
         }
-        else if(event.type == sf::Event::MouseButtonReleased &&
-                event.mouseButton.button == sf::Mouse::Left)
+        else if (event.type == sf::Event::MouseButtonReleased &&
+                 event.mouseButton.button == sf::Mouse::Left)
         {
             mouseEnd = sf::Mouse::getPosition(window);
             selecting = false;
