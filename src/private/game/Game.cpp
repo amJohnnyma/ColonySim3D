@@ -97,6 +97,44 @@ void Game::run()
     }
 }
 */
+/* chat gpt prototype to run UI and world separate
+using clock = std::chrono::steady_clock;
+const double targetFPS = 60.0;
+const std::chrono::duration<double> targetFrameTime(1.0 / targetFPS);
+const double fixedSimulationStep = 1.0 / 60.0; // 60 Hz sim step
+
+auto lastTime = clock::now();
+double simLag = 0.0;
+
+while (window.isOpen())
+{
+    auto currentTime = clock::now();
+    std::chrono::duration<double> elapsed = currentTime - lastTime;
+    lastTime = currentTime;
+    simLag += elapsed.count();
+
+    // 1. Handle events
+    while (window.pollEvent(event))
+        handleUIEvent(event);
+
+    // 2. Update UI - always every frame
+    uiManager.update(window, event);
+
+    // 3. Update simulation (maybe multiple times if sim is behind)
+    while (simLag >= fixedSimulationStep)
+    {
+        updateSimulation(fixedSimulationStep); // slower part
+        simLag -= fixedSimulationStep;
+    }
+
+    // 4. Draw everything - always once per frame
+    window.clear();
+    drawWorld(); // interpolated if needed
+    uiManager.draw(window);
+    window.display();
+}
+
+*/
 
 void Game::renderFrame() {
     wind->wndw->clear(sf::Color::Black);
