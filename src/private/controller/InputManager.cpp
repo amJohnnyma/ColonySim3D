@@ -102,6 +102,10 @@ void InputManager::update(sf::RenderWindow &window)
     {
         world->updateSliderValues(name, val);
     }
+    for (auto &[name, val] : uiManager->getButtonMap())
+    {
+        world->updateButtonValues(name, val);
+    }
 }
 
 void InputManager::draw(sf::RenderWindow &window)

@@ -18,11 +18,14 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
         sf::Color(46, 45, 46));                                                 // text col
     CheckBox *selectModeCB = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
     CheckBox *showFlatMapCB = new CheckBox(mainGUI->getGUIColor(), "ShowFlatMap", sf::Color(255, 255, 255));
+    CheckBox *showSphere = new CheckBox(mainGUI->getGUIColor(), "ShowSphere", sf::Color(255, 255, 255));
     //  CheckBox* checkBox = new CheckBox(mainGUI->getGUIColor(), "SelectMode", sf::Color(255, 255, 255));
     //   text* Text = new text(mainGUI->getGUI(), "This is Some Text!", sf::Color(255, 255, 255), window);
-    Slider<int, 1>* radius = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "Radius", 0, 900);
+    Slider<int, 1>* radius = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "Radius", 0, 50);
     Slider<int, 1>* flatSize = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "FlatMapSize", 10, 900);
 
+    Button *highlightWorld = new Button(mainGUI->getGUI(), mainGUI->getGUI(), 250.f, sf::Color(0,0,0), "highlightEntireWorld", "1");
+    Button *resetWorld = new Button(mainGUI->getGUI(),mainGUI->getGUI(), 250.f,sf::Color(0,0,0), "resetEntireWorld", "2");
     // guis.push_back({mainGUI, "main"});
     // checkboxes.push_back({checkBox, "main"});
     // texts.push_back({Text,"main"});
@@ -30,6 +33,7 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     addGUI("main", mainGUI);
     addCheckBox("selectMode", selectModeCB);
     addCheckBox("showFlatMap", showFlatMapCB);
+    addCheckBox("showSphere", showSphere);
     addSlider("radius", radius);
     addSlider("flatSize", flatSize);
     // addCheckBox("selectMode", selectModeCB);
@@ -40,6 +44,9 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     addSlider("A",A);
     Slider<int, 1>* originZ = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 600.0f, mainGUI->getFont(), "originZ", -500, 500, 256);
     addSlider("originZ",originZ);
+
+    addButton("highlightWorld", highlightWorld);
+    addButton("resetWorld", resetWorld);
 }
 
 UIManager::~UIManager()
@@ -52,12 +59,27 @@ UIManager::~UIManager()
 
     for (auto &[_, s] : sliders)
         delete s;
+
+    for (auto &[_, b] : buttons)
+        delete b;
+
 }
 
 void UIManager::update(sf::RenderWindow &window, sf::Event &event)
 {
     for (auto &[_, g] : guis)
         g->UPDATE_GUI(window);
+    
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        for(auto& [name, b] : buttons)
+        {
+            buttonMap[name] = b->isButtonClicked(window);
+            
+        }
+
+    }
+    
 }
 void UIManager::draw(sf::RenderWindow &window)
 {
@@ -82,6 +104,11 @@ void UIManager::draw(sf::RenderWindow &window)
     s->draw(window, slot,guis["main"]->getGUI(), &sliderMap[name]);
     slot++;
 
+    }
+    for (auto& [name, b] : buttons)
+    {
+    b->Draw(window,guis["main"]->getGUI(), guis["main"]->getGUIColor(), slot);
+    slot++;
     }
     //   std::cout << std::to_string(checkBoxMap["selectMode"]) << std::endl;
 
@@ -129,4 +156,9 @@ void UIManager::addCheckBox(const std::string &name, CheckBox *cb)
 void UIManager::addSlider(const std::string &name, Slider<int, 1> *s)
 {
     sliders[name] = s;
+}
+
+void UIManager::addButton(const std::string &name, Button *b)
+{
+    buttons[name] = b;
 }

@@ -11,7 +11,7 @@
 #include "../utils/math.h"
 // #include "../../controller/InputManager.h"
 
-class InputManager;
+//class InputManager;
 class ACO;
 class World
 {
@@ -39,6 +39,7 @@ private:
     float projectedRadius;
 
     std::unordered_map<std::string, bool> worldCBValues; // Checkbox values for world state
+    std::unordered_map<std::string, bool> worldButtonValues; // Checkbox values for world state
     std::unordered_map<std::string, int> worldSliderValues; // Checkbox values for world state
 
     std::vector<math::GridCoord> lastHoverTiles;
@@ -69,6 +70,8 @@ public:
     void update();
     void render(sf::RenderWindow &window);
     void updateView(float rotationX, float rotationY, float zoom, sf::RenderWindow &window);
+    void highlightEntireWorld();
+    void resetEntireWorld();
 
 public: //input stuff from UI and inputManager
     void updateCBValues(const std::string &name, bool value)
@@ -76,6 +79,7 @@ public: //input stuff from UI and inputManager
         worldCBValues[name] = value;        
     }
     void updateSliderValues(const std::string &name, int value);
+    void updateButtonValues(const std::string &name, bool value);
 
     bool getCBValues(std::string name)
     {
@@ -96,6 +100,16 @@ public: //input stuff from UI and inputManager
         {
             worldSliderValues[name] = 0;
             return 0;
+        }
+    }
+    bool getButtonValue(std::string name)
+    {
+                if (worldButtonValues.find(name) != worldButtonValues.end())
+            return worldButtonValues[name];
+        else
+        {
+            worldButtonValues[name] = false;
+            return false;
         }
     }
     void selectTiles(sf::Vector2i start, sf::Vector2i end);

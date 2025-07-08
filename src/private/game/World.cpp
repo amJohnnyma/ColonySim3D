@@ -198,7 +198,7 @@ void World::Init()
         sf::Color::Cyan,   // face 4
         sf::Color::Magenta // face 5
     };
-*/
+
     for (int face = 0; face < 6; face++)
     {
         for (int i = 0; i < conf::worldSize; i++)
@@ -223,7 +223,7 @@ void World::Init()
             }
         }
     }
-        
+        */
 }
 
 Cell *World::globalat(int x, int y)
@@ -378,6 +378,17 @@ void World::update()
     // std::cout << "X: " << conf::window_size.x / 2 + getSliderValues("globePositionX") << ", Y: " << conf::window_size.y / 2 + getSliderValues("globePositionY") << std::endl;
     terrainShader.setUniform("radius", conf::worldRadius + getSliderValues("radius"));
     terrainShader.setUniform("faceSize", getSliderValues("flatSize") + 0.f);
+
+    if(getButtonValue("highlightWorld"))
+    {
+        std::cout << "Highlighting" << std::endl;
+        highlightEntireWorld();        
+    }
+    if(getButtonValue("resetWorld"))
+    {
+        std::cout << "Resetting" << std::endl;
+        resetEntireWorld();        
+    }
 }
 
 void World::render(sf::RenderWindow &window)
@@ -425,6 +436,44 @@ void World::updateView(float rotationX, float rotationY, float zoom, sf::RenderW
     this->rotationY = rotationY;
 }
 
+void World::highlightEntireWorld()
+{
+    for (int face = 0; face < 6; face++)
+    {
+        for (int i = 0; i < conf::worldSize; i++)
+        {
+            for (int j = 0; j < conf::worldSize; j++)
+            {
+                math::GridCoord coord = {
+                    face,
+                    i,
+                    j
+                };
+                highlightCell(coord, sf::Color::Cyan);
+            }
+        }
+    }
+}
+
+void World::resetEntireWorld()
+{
+    for (int face = 0; face < 6; face++)
+    {
+        for (int i = 0; i < conf::worldSize; i++)
+        {
+            for (int j = 0; j < conf::worldSize; j++)
+            {
+                math::GridCoord coord = {
+                    face,
+                    i,
+                    j
+                };
+                resetCellColor(coord);
+            }
+        }
+    }
+}
+
 void World::updateSliderValues(const std::string &name, int value)
 {
     worldSliderValues[name] = value;
@@ -437,6 +486,11 @@ void World::updateSliderValues(const std::string &name, int value)
         this->debug.origin = value;
      //   std::cout << value << "\n";
     }
+}
+
+void World::updateButtonValues(const std::string &name, bool value)
+{
+    worldButtonValues[name] = value;
 }
 
 void World::selectTiles(sf::Vector2i start, sf::Vector2i end)
@@ -558,8 +612,12 @@ void World::drawTerrain(sf::RenderWindow &window)
 
     if (vertices.getVertexCount() == 0)
         std::cout << "No vertices to draw!\n";
+    if(getCBValues("showSphere"))
+    {
     terrainShader.setUniform("renderSphere", true); // Sphere mode
     window.draw(vertices, &terrainShader);
+
+    }
     if (getCBValues("showFlatMap"))
     {
         terrainShader.setUniform("renderSphere", false); // plane mode/

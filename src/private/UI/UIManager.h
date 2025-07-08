@@ -15,11 +15,13 @@ class UIManager
 private:
     std::unordered_map<std::string, gui *> guis;
     std::unordered_map<std::string, CheckBox *> checkBoxes;
+    std::unordered_map<std::string, Button *> buttons;
     std::unordered_map<std::string, Slider<int, 1> *> sliders;
     int width, height;
     std::pair<int, int> midScreen;
     std::unordered_map<std::string, bool> checkBoxMap; // Values for each checkbox "name" -> value
     std::unordered_map<std::string, int> sliderMap; // Values for each slider "name" -> value
+    std::unordered_map<std::string, bool> buttonMap; // Values for each slider "name" -> value
 public:
     UIManager(World *world, sf::RenderWindow &window);
     ~UIManager();
@@ -29,6 +31,7 @@ public:
     void addGUI(const std::string &name, gui *g);
     void addCheckBox(const std::string &name, CheckBox *cb);
     void addSlider(const std::string &name, Slider<int, 1> *s);
+    void addButton(const std::string &name, Button* b);
     bool isCheckboxChecked(std::string name)
     {
         return checkBoxMap[name];
@@ -40,6 +43,10 @@ public:
     std::unordered_map<std::string, int> &getSliderMap()
     {
         return sliderMap;
+    }
+    std::unordered_map<std::string, bool> &getButtonMap()
+    {
+        return buttonMap;
     }
 
     /*
