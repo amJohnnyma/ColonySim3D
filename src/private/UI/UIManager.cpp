@@ -26,6 +26,9 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
 
     Button *highlightWorld = new Button(mainGUI->getGUI(), mainGUI->getGUI(), 250.f, sf::Color(0,0,0), "highlightEntireWorld", "1");
     Button *resetWorld = new Button(mainGUI->getGUI(),mainGUI->getGUI(), 250.f,sf::Color(0,0,0), "resetEntireWorld", "2");
+
+    Slider<int, 1>* xTest = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "xTest", 0, (conf::worldSize * 4));
+    Slider<int, 1>* yTest = new Slider<int,1>(mainGUI->getGUIColor().getFillColor(), sf::Color(255, 255, 255), 200.0f, mainGUI->getFont(), "yTest", 0, (conf::worldSize*3));
     // guis.push_back({mainGUI, "main"});
     // checkboxes.push_back({checkBox, "main"});
     // texts.push_back({Text,"main"});
@@ -36,6 +39,8 @@ UIManager::UIManager(World *world, sf::RenderWindow &window)
     addCheckBox("showSphere", showSphere);
     addSlider("radius", radius);
     addSlider("flatSize", flatSize);
+    addSlider("xTest", xTest);
+    addSlider("yTest",yTest);
     // addCheckBox("selectMode", selectModeCB);
 
 

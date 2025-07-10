@@ -399,7 +399,7 @@ void World::render(sf::RenderWindow &window)
     glFrontFace(GL_CCW);
     glClear(GL_DEPTH_BUFFER_BIT);
     drawTerrain(window);
-    // drawEntities(window);
+    drawEntities(window);
 
     glDisable(GL_CULL_FACE);
 
@@ -449,7 +449,7 @@ void World::highlightEntireWorld()
                     i,
                     j
                 };
-                highlightCell(coord, sf::Color::Cyan);
+                highlightCell(coord, sf::Color::White);
             }
         }
     }
@@ -627,19 +627,38 @@ void World::drawTerrain(sf::RenderWindow &window)
 
 void World::drawEntities(sf::RenderWindow &window)
 {
-    billBoardShader.setUniform("rotX", rotationX);
-    billBoardShader.setUniform("rotY", rotationY);
-    billBoardShader.setUniform("zoom", zoom);
-    if (billBoards.getVertexCount() == 0)
-        std::cout << "No billboards to draw!\n";
+    // billBoardShader.setUniform("rotX", rotationX);
+    // billBoardShader.setUniform("rotY", rotationY);
+    // billBoardShader.setUniform("zoom", zoom);
+    // if (billBoards.getVertexCount() == 0)
+    //     std::cout << "No billboards to draw!\n";
 
-    billBoardShader.setUniform("renderSphere", true); // Sphere mode
-    window.draw(billBoards, &billBoardShader);
-    if (getCBValues("showFlatMap"))
-    {
-        billBoardShader.setUniform("renderSphere", false); // plane mode
-        window.draw(billBoards, &billBoardShader);
+    // billBoardShader.setUniform("renderSphere", true); // Sphere mode
+    // window.draw(billBoards, &billBoardShader);
+    // if (getCBValues("showFlatMap"))
+    // {
+    //     billBoardShader.setUniform("renderSphere", false); // plane mode
+    //     window.draw(billBoards, &billBoardShader);
+    // }
+    resetEntireWorld();
+    int xTest=getSliderValues("xTest");
+    int yTest=getSliderValues("yTest");
+    auto cell = globalat(xTest, yTest);
+    if(cell)
+    {    
+        std::cout << "Cell: Face - " << cell->face << " : XY - " << cell->x << ", " << cell->y << std::endl;
+        int quadIndex = (cell->face * conf::worldSize * conf::worldSize + cell->y * conf::worldSize + cell->x) * 4;
+        if (quadIndex + 3 >= vertices.getVertexCount()) return;
+
+
+        for (int k = 0; k < 4; ++k)
+            vertices[quadIndex + k].color = sf::Color::Black;
+
     }
+    else{
+        std::cout << "Cell does not exist at: " << std::to_string(xTest) << ", " << std::to_string(yTest) << std::endl;
+    }
+
 }
 
 void World::drawGrid(sf::RenderWindow &window)
