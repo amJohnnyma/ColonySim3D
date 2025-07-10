@@ -226,6 +226,120 @@ void World::Init()
         */
 }
 
+
+
+
+enum class Direction { UP, DOWN, LEFT, RIGHT };
+struct FaceTransition {
+    int toFace;
+    Direction rotation; // How the orientation shifts during the transition
+};
+std::map<std::pair<int, Direction>, FaceTransition> edgeTransitions = {
+    // ---------- Face 0 (center) ----------
+    {{0, Direction::UP},    {4, Direction::UP}},    // 0↑ → 4↑ (top face directly above)
+    {{0, Direction::DOWN},  {5, Direction::UP}},    // 0↓ → 5↑ (bottom face directly below)
+    {{0, Direction::LEFT},  {2, Direction::UP}},    // 0← → 2↑ (left face)
+    {{0, Direction::RIGHT}, {3, Direction::UP}},    // 0→ → 3↑ (right face)
+
+    // ---------- Face 1 (right of 0) ----------
+    {{1, Direction::LEFT},  {3, Direction::RIGHT}}, // 1← → 3→ (back to center-right)
+    {{1, Direction::UP},    {4, Direction::RIGHT}}, // 1↑ → 4→ (wrap over top)
+    {{1, Direction::DOWN},  {5, Direction::RIGHT}}, // 1↓ → 5→ (wrap under bottom)
+    {{1, Direction::RIGHT}, {2, Direction::RIGHT}},
+
+    // ---------- Face 2 (left of 0) ----------
+    {{2, Direction::RIGHT}, {0, Direction::UP}},    // 2→ → 0↑ (back to center)
+    {{2, Direction::UP},    {4, Direction::LEFT}},  // 2↑ → 4← (wrap over top)
+    {{2, Direction::DOWN},  {5, Direction::LEFT}},  // 2↓ → 5← (wrap under bottom)
+    {{2, Direction::LEFT},  {1, Direction::UP}},  
+
+    // ---------- Face 3 (right of 0) ----------
+    {{3, Direction::LEFT},  {0, Direction::UP}},    // 3← → 0↑ (back to center)
+    {{3, Direction::UP},    {4, Direction::DOWN}},  // 3↑ → 4↓ (wrap over top)
+    {{3, Direction::DOWN},  {5, Direction::DOWN}},  // 3↓ → 5↓ (wrap under bottom)
+    {{3, Direction::RIGHT},  {1, Direction::UP}}, 
+
+    // ---------- Face 4 (top) ----------
+    {{4, Direction::UP},    {1, Direction::UP}},    // 4↑ → 1↑
+    {{4, Direction::DOWN},  {0, Direction::UP}},    // 4↓ → 0↑
+    {{4, Direction::LEFT},  {2, Direction::UP}},    // 4← → 2↑
+    {{4, Direction::RIGHT}, {3, Direction::UP}},    // 4→ → 3↑
+
+    // ---------- Face 5 (bottom) ----------
+    {{5, Direction::UP},    {0, Direction::DOWN}},  // 5↑ → 0↓
+    {{5, Direction::DOWN},  {1, Direction::DOWN}},  // 5↓ → 1↓
+    {{5, Direction::LEFT},  {2, Direction::DOWN}},  // 5← → 2↓
+    {{5, Direction::RIGHT}, {3, Direction::DOWN}},  // 5→ → 3↓
+};
+
+Cell* World::globalat(int x, int y)
+{
+    const int totalWidth = conf::worldSize * 4;
+    const int totalHeight = conf::worldSize * 3;
+
+    // Wrap coordinates within cube map bounds
+    int wrappedX = (x % totalWidth + totalWidth) % totalWidth;
+    int wrappedY = (y % totalHeight + totalHeight) % totalHeight;
+
+    // Determine which unfolded face (fx, fy) the coordinates are on
+    int fx = wrappedX / conf::worldSize;
+    int fy = wrappedY / conf::worldSize;
+
+    int faceStartX = fx * conf::worldSize;
+    int faceStartY = fy * conf::worldSize;
+
+    int localX = wrappedX - faceStartX;
+    int localY = wrappedY - faceStartY;
+
+    auto it = conf::faceLookup.find({fx, fy});
+    if (it == conf::faceLookup.end()) {
+        std::cerr << "Invalid face mapping for fx=" << fx << ", fy=" << fy << std::endl;
+        return nullptr;
+    }
+    int face = it->second;
+
+    // Handle out-of-bounds by transitioning to another face
+    bool outOfBounds = false;
+    Direction dir;
+
+    if (localX < 0) {
+        dir = Direction::LEFT; outOfBounds = true;
+    } else if (localX >= conf::worldSize) {
+        dir = Direction::RIGHT; outOfBounds = true;
+    } else if (localY < 0) {
+        dir = Direction::UP; outOfBounds = true;
+    } else if (localY >= conf::worldSize) {
+        dir = Direction::DOWN; outOfBounds = true;
+    }
+
+    if (outOfBounds) {
+        auto transIt = edgeTransitions.find({face, dir});
+        if (transIt == edgeTransitions.end()) {
+            std::cerr << "No transition from face " << face << " in direction " << int(dir) << "\n";
+            return nullptr;
+        }
+
+        face = transIt->second.toFace;
+
+        // Wrap back inside the new face bounds
+        if (dir == Direction::LEFT || dir == Direction::RIGHT)
+            localX = (localX + conf::worldSize) % conf::worldSize;
+        if (dir == Direction::UP || dir == Direction::DOWN)
+            localY = (localY + conf::worldSize) % conf::worldSize;
+    }
+
+    int chunkX = localX / conf::chunkSize;
+    int chunkY = localY / conf::chunkSize;
+
+    auto chunk = chunkManager->getChunk(chunkX, chunkY, face);
+    if (!chunk) return nullptr;
+
+    int lx = localX % conf::chunkSize;
+    int ly = localY % conf::chunkSize;
+    return chunk->at(lx, ly);
+}
+
+/*
 Cell *World::globalat(int x, int y)
 {
     const int totalWidth = conf::worldSize * 4;
@@ -280,6 +394,7 @@ Cell *World::globalat(int x, int y)
     // std::cout << "LocalXY: " << lx << ", " << ly << std::endl;
     return chunk->at(lx, ly);
 }
+*/
 
 Cell *World::cellat(int face, int x, int y)
 {
