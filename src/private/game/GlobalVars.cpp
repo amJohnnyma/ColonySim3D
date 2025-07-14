@@ -1,15 +1,16 @@
 #include "GlobalVars.h"
+#include <cmath>
 // put in wrapper to modify vars at runtime
 namespace conf
 {
     const int cellSize = 50;
     const int antSize = 50;
     double maxPheromone = 20;
-    const sf::Vector2f window_size = {1920, 1080};
+    const sf::Vector2f window_size = {1000, 1000};
     const sf::Vector2f window_size_f = static_cast<sf::Vector2f>(window_size);
     // default - 512
-    int worldSize = 8; // per square face
-    int chunkSize = worldSize / 4;
+    int worldSize = 4; // per square face
+    int chunkSize = std::clamp((worldSize / 4), 1, 128);
     /*
     16,16 = 1x1
     32,32 = 2x2
@@ -52,36 +53,25 @@ namespace conf
     int numberOfTeams = 16;             // >0
     double chosenTeam;                  // 0 - 1 (chosen * num teams = team)
     float worldRadius = 250;
+
+    //a flag to know if i must change the rotation of x,y ?
     const std::map<std::pair<int, int>, int> faceLookup = { // for when looking up x,y coords
         //X = 0
         {{0, 0}, 0},
-        {{0, 1}, 4},
-        {{0, 2}, 5},
+        {{0, 1}, 5},
+        {{0, 2}, 4},
         //X = 1
         {{1, 0}, 3},
-        {{1, 1}, 4},
-        {{1, 2}, 5},
+        {{1, 1}, 5},
+        {{1, 2}, 4},
         //X = 2
         {{2, 0}, 1},
-        {{2, 1}, 4},
+        {{2, 1}, 3},
         {{2, 2}, 5},
         //X = 3
         {{3, 0}, 2},
-        {{3, 1}, 4},
-        {{3, 2}, 5}};
-    const std::map<std::pair<int, int>,int> tfacelookup = {
-            // Y = 0 (top row)
-        {{0, 1}, 4}, // Top face (Green)
-
-        // Y = 1 (middle row)
-        {{3, 0}, 3}, // Left (Orange)
-        {{0, 0}, 0}, // Front (Red)
-        {{1, 0}, 5}, // Right (Blue)
-        {{2, 0}, 1}, // Back (Purple)
-
-        // Y = 2 (bottom row)
-        {{0, 2}, 2} // Bottom face (Cyan)
-    };
+        {{3, 1}, 5},
+        {{3, 2}, 4}};
 
     float distance = worldRadius * 2.f;       
 }

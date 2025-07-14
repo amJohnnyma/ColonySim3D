@@ -44,7 +44,6 @@ namespace conf
     extern double chosenTeam; //0 - 1 (chosen * num teams = team)
     extern float worldRadius;
     extern const std::map<std::pair<int, int>, int> faceLookup;
-    extern const std::map<std::pair<int, int>, int> tfacelookup;
     extern float distance;
 
 }

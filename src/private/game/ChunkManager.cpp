@@ -79,8 +79,8 @@ void ChunkManager::createTempTerrain(sf::VertexArray& vertices, int gridSize)
     int totalCells = gridSize * gridSize;
     vertices.setPrimitiveType(sf::Quads);
     vertices.resize(6 * gridSize * gridSize * 4);
-  //  std::vector<int> faces = {0,4,5,3,1,2};
-    std::vector<int> faces = {0,1,2,3,4,5};
+    std::vector<int> faces = {0,4,5,3,1,2};
+ //   std::vector<int> faces = {0,1,2,3,4,5};
 
     for (auto& face : faces) {
         std::vector<sf::Color> colors = worldGen.get()->createChunk(face, gridSize, world);

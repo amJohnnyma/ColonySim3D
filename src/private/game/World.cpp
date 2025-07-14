@@ -228,106 +228,85 @@ void World::Init()
 
 
 
+enum class Direction { UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3 };
 
-enum class Direction { UP, DOWN, LEFT, RIGHT };
 struct FaceTransition {
     int toFace;
-    Direction rotation; // How the orientation shifts during the transition
+    Direction rotation;
+
+    std::string toString() const {
+        switch (rotation) {
+            case Direction::UP: return "Up";
+            case Direction::DOWN: return "Down";
+            case Direction::LEFT: return "Left";
+            case Direction::RIGHT: return "Right";
+        }
+        return "Unknown";
+    }
 };
 std::map<std::pair<int, Direction>, FaceTransition> edgeTransitions = {
-    // ---------- Face 0 (center) ----------
-    {{0, Direction::UP},    {4, Direction::UP}},    // 0↑ → 4↑ (top face directly above)
-    {{0, Direction::DOWN},  {5, Direction::UP}},    // 0↓ → 5↑ (bottom face directly below)
-    {{0, Direction::LEFT},  {2, Direction::UP}},    // 0← → 2↑ (left face)
-    {{0, Direction::RIGHT}, {3, Direction::UP}},    // 0→ → 3↑ (right face)
+    {{0, Direction::UP},    {4, Direction::UP}},
+    {{0, Direction::DOWN},  {5, Direction::UP}},
+    {{0, Direction::LEFT},  {2, Direction::RIGHT}},
+    {{0, Direction::RIGHT}, {3, Direction::LEFT}},
 
-    // ---------- Face 1 (right of 0) ----------
-    {{1, Direction::LEFT},  {3, Direction::RIGHT}}, // 1← → 3→ (back to center-right)
-    {{1, Direction::UP},    {4, Direction::RIGHT}}, // 1↑ → 4→ (wrap over top)
-    {{1, Direction::DOWN},  {5, Direction::RIGHT}}, // 1↓ → 5→ (wrap under bottom)
-    {{1, Direction::RIGHT}, {2, Direction::RIGHT}},
+    {{1, Direction::LEFT},  {3, Direction::RIGHT}},
+    {{1, Direction::UP},    {4, Direction::RIGHT}},
+    {{1, Direction::DOWN},  {5, Direction::RIGHT}},
+    {{1, Direction::RIGHT}, {2, Direction::LEFT}},
 
-    // ---------- Face 2 (left of 0) ----------
-    {{2, Direction::RIGHT}, {0, Direction::UP}},    // 2→ → 0↑ (back to center)
-    {{2, Direction::UP},    {4, Direction::LEFT}},  // 2↑ → 4← (wrap over top)
-    {{2, Direction::DOWN},  {5, Direction::LEFT}},  // 2↓ → 5← (wrap under bottom)
-    {{2, Direction::LEFT},  {1, Direction::UP}},  
+    {{2, Direction::RIGHT}, {0, Direction::LEFT}},
+    {{2, Direction::UP},    {4, Direction::LEFT}},
+    {{2, Direction::DOWN},  {5, Direction::LEFT}},
+    {{2, Direction::LEFT},  {1, Direction::RIGHT}},
 
-    // ---------- Face 3 (right of 0) ----------
-    {{3, Direction::LEFT},  {0, Direction::UP}},    // 3← → 0↑ (back to center)
-    {{3, Direction::UP},    {4, Direction::DOWN}},  // 3↑ → 4↓ (wrap over top)
-    {{3, Direction::DOWN},  {5, Direction::DOWN}},  // 3↓ → 5↓ (wrap under bottom)
-    {{3, Direction::RIGHT},  {1, Direction::UP}}, 
+    {{3, Direction::LEFT},  {0, Direction::RIGHT}},
+    {{3, Direction::UP},    {4, Direction::DOWN}},
+    {{3, Direction::DOWN},  {5, Direction::DOWN}},
+    {{3, Direction::RIGHT}, {1, Direction::LEFT}},
 
-    // ---------- Face 4 (top) ----------
-    {{4, Direction::UP},    {1, Direction::UP}},    // 4↑ → 1↑
-    {{4, Direction::DOWN},  {0, Direction::UP}},    // 4↓ → 0↑
-    {{4, Direction::LEFT},  {2, Direction::UP}},    // 4← → 2↑
-    {{4, Direction::RIGHT}, {3, Direction::UP}},    // 4→ → 3↑
+    {{4, Direction::UP},    {3, Direction::UP}},
+    {{4, Direction::DOWN},  {0, Direction::UP}},
+    {{4, Direction::LEFT},  {2, Direction::UP}},
+    {{4, Direction::RIGHT}, {1, Direction::UP}},
 
-    // ---------- Face 5 (bottom) ----------
-    {{5, Direction::UP},    {0, Direction::DOWN}},  // 5↑ → 0↓
-    {{5, Direction::DOWN},  {1, Direction::DOWN}},  // 5↓ → 1↓
-    {{5, Direction::LEFT},  {2, Direction::DOWN}},  // 5← → 2↓
-    {{5, Direction::RIGHT}, {3, Direction::DOWN}},  // 5→ → 3↓
+    {{5, Direction::UP},    {0, Direction::DOWN}},
+    {{5, Direction::DOWN},  {3, Direction::DOWN}},
+    {{5, Direction::LEFT},  {2, Direction::DOWN}},
+    {{5, Direction::RIGHT}, {1, Direction::DOWN}},
 };
+std::pair<int, int> rotateCoords(int x, int y, Direction from, Direction to, int N) {
+    int rotations = (4 + static_cast<int>(to) - static_cast<int>(from)) % 4;
+    for (int r = 0; r < rotations; ++r) {
+        int temp = x;
+        x = N - 1 - y;
+        y = temp;
+    }
+    return {x, y};
+}
+Cell* World::globalat(int x, int y) {
+    const int faceSize = conf::worldSize;
+    const int totalWidth = faceSize * 4;
+    const int totalHeight = faceSize * 3;
 
-Cell* World::globalat(int x, int y)
-{
-    const int totalWidth = conf::worldSize * 4;
-    const int totalHeight = conf::worldSize * 3;
-
-    // Wrap coordinates within cube map bounds
+    // Wrap into global bounds
     int wrappedX = (x % totalWidth + totalWidth) % totalWidth;
     int wrappedY = (y % totalHeight + totalHeight) % totalHeight;
 
-    // Determine which unfolded face (fx, fy) the coordinates are on
-    int fx = wrappedX / conf::worldSize;
-    int fy = wrappedY / conf::worldSize;
-
-    int faceStartX = fx * conf::worldSize;
-    int faceStartY = fy * conf::worldSize;
-
-    int localX = wrappedX - faceStartX;
-    int localY = wrappedY - faceStartY;
+    int fx = wrappedX / faceSize;
+    int fy = wrappedY / faceSize;
+    int localX = wrappedX % faceSize;
+    int localY = wrappedY % faceSize;
 
     auto it = conf::faceLookup.find({fx, fy});
     if (it == conf::faceLookup.end()) {
-        std::cerr << "Invalid face mapping for fx=" << fx << ", fy=" << fy << std::endl;
+        std::cerr << "Invalid face lookup: fx=" << fx << ", fy=" << fy << "\n";
         return nullptr;
     }
+
     int face = it->second;
 
-    // Handle out-of-bounds by transitioning to another face
-    bool outOfBounds = false;
-    Direction dir;
-
-    if (localX < 0) {
-        dir = Direction::LEFT; outOfBounds = true;
-    } else if (localX >= conf::worldSize) {
-        dir = Direction::RIGHT; outOfBounds = true;
-    } else if (localY < 0) {
-        dir = Direction::UP; outOfBounds = true;
-    } else if (localY >= conf::worldSize) {
-        dir = Direction::DOWN; outOfBounds = true;
-    }
-
-    if (outOfBounds) {
-        auto transIt = edgeTransitions.find({face, dir});
-        if (transIt == edgeTransitions.end()) {
-            std::cerr << "No transition from face " << face << " in direction " << int(dir) << "\n";
-            return nullptr;
-        }
-
-        face = transIt->second.toFace;
-
-        // Wrap back inside the new face bounds
-        if (dir == Direction::LEFT || dir == Direction::RIGHT)
-            localX = (localX + conf::worldSize) % conf::worldSize;
-        if (dir == Direction::UP || dir == Direction::DOWN)
-            localY = (localY + conf::worldSize) % conf::worldSize;
-    }
-
+    // Convert to chunk coordinates
     int chunkX = localX / conf::chunkSize;
     int chunkY = localY / conf::chunkSize;
 
@@ -338,6 +317,8 @@ Cell* World::globalat(int x, int y)
     int ly = localY % conf::chunkSize;
     return chunk->at(lx, ly);
 }
+
+
 
 /*
 Cell *World::globalat(int x, int y)
@@ -761,7 +742,7 @@ void World::drawEntities(sf::RenderWindow &window)
     auto cell = globalat(xTest, yTest);
     if(cell)
     {    
-        std::cout << "Cell: Face - " << cell->face << " : XY - " << cell->x << ", " << cell->y << std::endl;
+      //  std::cout << "Cell: Face - " << cell->face << " : XY - " << cell->x << ", " << cell->y << std::endl;
         int quadIndex = (cell->face * conf::worldSize * conf::worldSize + cell->y * conf::worldSize + cell->x) * 4;
         if (quadIndex + 3 >= vertices.getVertexCount()) return;
 
